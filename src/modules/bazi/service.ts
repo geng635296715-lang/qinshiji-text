@@ -1,4 +1,4 @@
-import { Lunar, Solar } from "lunar-typescript";
+import { Lunar, LunarYear, Solar } from "lunar-typescript";
 import type { CalendarType } from "../../shared/types/domain.js";
 
 type Gender = "male" | "female" | "other";
@@ -78,6 +78,15 @@ type CompatibilityRelationType =
   | "boss-employee"
   | "partner";
 
+type ShenShaItem = {
+  key: string;
+  name: string;
+  matchedPillars: string[];
+  importance: "high" | "medium" | "low";
+  meaning: string;
+  advice: string;
+};
+
 const WU_XING_ORDER: WuXingName[] = ["木", "火", "土", "金", "水"];
 
 const WU_XING_COLORS: Record<WuXingName, { colorName: string; colorHex: string }> = {
@@ -123,7 +132,7 @@ function parseBirthInput(
   birthDate: string,
   birthTime: string
 ): ParsedBirthInput {
-  const dateMatch = birthDate.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  const dateMatch = birthDate.match(/^(\d{4})-(-?\d{1,2})-(\d{1,2})$/);
   const timeMatch = birthTime.match(/^(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?$/);
 
   if (!dateMatch) {
@@ -580,6 +589,512 @@ function buildWuXingBalanceHint(stats: WuXingStat[]) {
   return `当前盘面${max.name}偏旺、${min.name}偏弱，首版建议继续结合月令与大运判断喜忌。`;
 }
 
+function pickPillarHits(
+  pillars: PillarVisual[],
+  targetBranches: string[],
+  targetStems: string[] = []
+) {
+  return pillars
+    .filter(
+      (pillar) =>
+        targetBranches.includes(pillar.earthlyBranch.value) ||
+        targetStems.includes(pillar.heavenlyStem.value)
+    )
+    .map((pillar) =>
+      pillar.name === "year"
+        ? "年柱"
+        : pillar.name === "month"
+          ? "月柱"
+          : pillar.name === "day"
+            ? "日柱"
+            : "时柱"
+    );
+}
+
+function branchGroup(branch: string) {
+  if (["申", "子", "辰"].includes(branch)) {
+    return "water";
+  }
+  if (["寅", "午", "戌"].includes(branch)) {
+    return "fire";
+  }
+  if (["亥", "卯", "未"].includes(branch)) {
+    return "wood";
+  }
+  return "metal";
+}
+
+function getGroupTarget(
+  branch: string,
+  mapping: Record<"water" | "fire" | "wood" | "metal", string>
+) {
+  return mapping[branchGroup(branch)];
+}
+
+function buildShenShaAnalysis(pillars: PillarVisual[]) {
+  const yearBranch = pillars[0].earthlyBranch.value;
+  const dayBranch = pillars[2].earthlyBranch.value;
+  const dayStem = pillars[2].heavenlyStem.value;
+  const dayPillar = pillars[2].ganzhi;
+  const items: ShenShaItem[] = [];
+
+  const taoHua = getGroupTarget(dayBranch, {
+    water: "酉",
+    fire: "卯",
+    wood: "子",
+    metal: "午"
+  });
+  const taoHuaHits = pickPillarHits(pillars, [taoHua]);
+  if (taoHuaHits.length > 0) {
+    items.push({
+      key: "taohua",
+      name: "桃花",
+      matchedPillars: taoHuaHits,
+      importance: "high",
+      meaning: "人缘、情感吸引力、社交热度较容易被放大。",
+      advice: "有利于关系与曝光，但也要防情绪牵动与边界不清。"
+    });
+  }
+
+  const yiMa = getGroupTarget(dayBranch, {
+    water: "寅",
+    fire: "申",
+    wood: "巳",
+    metal: "亥"
+  });
+  const yiMaHits = pickPillarHits(pillars, [yiMa]);
+  if (yiMaHits.length > 0) {
+    items.push({
+      key: "yima",
+      name: "驿马",
+      matchedPillars: yiMaHits,
+      importance: "medium",
+      meaning: "变动、迁移、奔波、跨环境切换更明显。",
+      advice: "适合异地、差旅、转岗与资源流动，但稳定度要额外经营。"
+    });
+  }
+
+  const huaGai = getGroupTarget(dayBranch, {
+    water: "辰",
+    fire: "戌",
+    wood: "未",
+    metal: "丑"
+  });
+  const huaGaiHits = pickPillarHits(pillars, [huaGai]);
+  if (huaGaiHits.length > 0) {
+    items.push({
+      key: "huagai",
+      name: "华盖",
+      matchedPillars: huaGaiHits,
+      importance: "medium",
+      meaning: "思辨、审美、精神世界与独处感较强。",
+      advice: "适合研究、创作、玄学美学类方向，但要防过度封闭。"
+    });
+  }
+
+  const jiangXing = getGroupTarget(dayBranch, {
+    water: "子",
+    fire: "午",
+    wood: "卯",
+    metal: "酉"
+  });
+  const jiangXingHits = pickPillarHits(pillars, [jiangXing]);
+  if (jiangXingHits.length > 0) {
+    items.push({
+      key: "jiangxing",
+      name: "将星",
+      matchedPillars: jiangXingHits,
+      importance: "high",
+      meaning: "主导意识、带头能力、掌控场域倾向更明显。",
+      advice: "适合做核心决策和负责人，但也要避免太强势。"
+    });
+  }
+
+  const wenChangMap: Record<string, string> = {
+    甲: "巳",
+    乙: "午",
+    丙: "申",
+    丁: "酉",
+    戊: "申",
+    己: "酉",
+    庚: "亥",
+    辛: "子",
+    壬: "寅",
+    癸: "卯"
+  };
+  const wenChangHits = pickPillarHits(pillars, [wenChangMap[dayStem]]);
+  if (wenChangHits.length > 0) {
+    items.push({
+      key: "wenchang",
+      name: "文昌",
+      matchedPillars: wenChangHits,
+      importance: "medium",
+      meaning: "学习、理解结构、考试写作、表达组织力较强。",
+      advice: "适合做内容、学习、策划、考证和系统型成长。"
+    });
+  }
+
+  const tianYiMap: Record<string, string[]> = {
+    甲: ["丑", "未"],
+    戊: ["丑", "未"],
+    庚: ["丑", "未"],
+    乙: ["子", "申"],
+    己: ["子", "申"],
+    丙: ["亥", "酉"],
+    丁: ["亥", "酉"],
+    壬: ["巳", "卯"],
+    癸: ["巳", "卯"],
+    辛: ["寅", "午"]
+  };
+  const tianYiHits = pickPillarHits(pillars, tianYiMap[dayStem] ?? []);
+  if (tianYiHits.length > 0) {
+    items.push({
+      key: "tianyi",
+      name: "天乙贵人",
+      matchedPillars: tianYiHits,
+      importance: "high",
+      meaning: "关键阶段较容易遇到帮助、提携、转圜空间。",
+      advice: "遇事不要只靠硬扛，主动借力、找贵人、找专业协助会更顺。"
+    });
+  }
+
+  if (new Set(["庚辰", "庚戌", "壬辰", "戊戌"]).has(dayPillar)) {
+    items.push({
+      key: "kuigang",
+      name: "魁罡",
+      matchedPillars: ["日柱"],
+      importance: "high",
+      meaning: "个性锋利、标准感强、执行果断，带有不愿被轻易拿捏的特征。",
+      advice: "适合高压和决断场景，但关系里尤其要注意柔软度与留余地。"
+    });
+  }
+
+  const hongLuanMap: Record<string, string> = {
+    子: "卯",
+    丑: "寅",
+    寅: "丑",
+    卯: "子",
+    辰: "亥",
+    巳: "戌",
+    午: "酉",
+    未: "申",
+    申: "未",
+    酉: "午",
+    戌: "巳",
+    亥: "辰"
+  };
+  const hongLuanHits = pickPillarHits(pillars, [hongLuanMap[yearBranch]]);
+  if (hongLuanHits.length > 0) {
+    items.push({
+      key: "hongluan",
+      name: "红鸾",
+      matchedPillars: hongLuanHits,
+      importance: "medium",
+      meaning: "感情、人缘、喜庆联结更容易被点亮。",
+      advice: "对感情与关系修复有加成，但仍要结合流运看时机。"
+    });
+  }
+
+  const tianXiMap: Record<string, string> = {
+    子: "酉",
+    丑: "申",
+    寅: "未",
+    卯: "午",
+    辰: "巳",
+    巳: "辰",
+    午: "卯",
+    未: "寅",
+    申: "丑",
+    酉: "子",
+    戌: "亥",
+    亥: "戌"
+  };
+  const tianXiHits = pickPillarHits(pillars, [tianXiMap[yearBranch]]);
+  if (tianXiHits.length > 0) {
+    items.push({
+      key: "tianxi",
+      name: "天喜",
+      matchedPillars: tianXiHits,
+      importance: "medium",
+      meaning: "喜庆、人缘活络、关系转暖的信号较明显。",
+      advice: "适合关系破冰、沟通修复、喜庆事项推进，但要看现实承接。"
+    });
+  }
+
+  const luShenMap: Record<string, string> = {
+    甲: "寅",
+    乙: "卯",
+    丙: "巳",
+    丁: "午",
+    戊: "巳",
+    己: "午",
+    庚: "申",
+    辛: "酉",
+    壬: "亥",
+    癸: "子"
+  };
+  const luShenHits = pickPillarHits(pillars, [luShenMap[dayStem]]);
+  if (luShenHits.length > 0) {
+    items.push({
+      key: "lushen",
+      name: "禄神",
+      matchedPillars: luShenHits,
+      importance: "high",
+      meaning: "个人资源、自我驱动力与现实获取能力较容易被看见。",
+      advice: "适合靠专业、能力和持续输出换成果，也提醒别浪费自己的长项。"
+    });
+  }
+
+  const yangRenMap: Record<string, string> = {
+    甲: "卯",
+    乙: "寅",
+    丙: "午",
+    丁: "巳",
+    戊: "午",
+    己: "巳",
+    庚: "酉",
+    辛: "申",
+    壬: "子",
+    癸: "亥"
+  };
+  const yangRenHits = pickPillarHits(pillars, [yangRenMap[dayStem]]);
+  if (yangRenHits.length > 0) {
+    items.push({
+      key: "yangren",
+      name: "羊刃",
+      matchedPillars: yangRenHits,
+      importance: "high",
+      meaning: "行动力、冲劲、锋芒与对抗性被放大。",
+      advice: "适合高执行和强决断场景，但关系里要防急躁、硬碰硬和过度消耗。"
+    });
+  }
+
+  const taiJiMap: Record<string, string[]> = {
+    甲: ["子", "午"],
+    乙: ["子", "午"],
+    丙: ["卯", "酉"],
+    丁: ["卯", "酉"],
+    戊: ["辰", "戌", "丑", "未"],
+    己: ["辰", "戌", "丑", "未"],
+    庚: ["寅", "亥"],
+    辛: ["寅", "亥"],
+    壬: ["巳", "申"],
+    癸: ["巳", "申"]
+  };
+  const taiJiHits = pickPillarHits(pillars, taiJiMap[dayStem] ?? []);
+  if (taiJiHits.length > 0) {
+    items.push({
+      key: "taiji",
+      name: "太极贵人",
+      matchedPillars: taiJiHits,
+      importance: "medium",
+      meaning: "悟性、思考深度、对玄学哲学规律性的感应更强。",
+      advice: "适合研究、策划、咨询、命理心理等深思型方向。"
+    });
+  }
+
+  const groupBranchMap = {
+    water: { jieSha: "巳", zaiSha: "午", wangShen: "亥", guChen: "寅", guaSu: "戌" },
+    fire: { jieSha: "亥", zaiSha: "子", wangShen: "巳", guChen: "巳", guaSu: "丑" },
+    wood: { jieSha: "申", zaiSha: "酉", wangShen: "寅", guChen: "申", guaSu: "辰" },
+    metal: { jieSha: "寅", zaiSha: "卯", wangShen: "申", guChen: "亥", guaSu: "未" }
+  }[branchGroup(yearBranch)];
+
+  const jieShaHits = pickPillarHits(pillars, [groupBranchMap.jieSha]);
+  if (jieShaHits.length > 0) {
+    items.push({
+      key: "jiesha",
+      name: "劫煞",
+      matchedPillars: jieShaHits,
+      importance: "medium",
+      meaning: "外界干扰、突发打断、资源被分流的情形更容易出现。",
+      advice: "遇到关键事务要防被人事或节奏打断，重要决策宜留缓冲。"
+    });
+  }
+
+  const zaiShaHits = pickPillarHits(pillars, [groupBranchMap.zaiSha]);
+  if (zaiShaHits.length > 0) {
+    items.push({
+      key: "zaisha",
+      name: "灾煞",
+      matchedPillars: zaiShaHits,
+      importance: "medium",
+      meaning: "表示某些阶段更容易有波折、烦扰或额外消耗。",
+      advice: "不一定是大灾，但提醒凡事多做备选、少冒进。"
+    });
+  }
+
+  const wangShenHits = pickPillarHits(pillars, [groupBranchMap.wangShen]);
+  if (wangShenHits.length > 0) {
+    items.push({
+      key: "wangshen",
+      name: "亡神",
+      matchedPillars: wangShenHits,
+      importance: "medium",
+      meaning: "精神紧绷、隐性耗能、心神不定或暗处阻力更值得留意。",
+      advice: "重要阶段要防心态失衡、信息误差和看似没事却持续耗神。"
+    });
+  }
+
+  const guChenHits = pickPillarHits(pillars, [groupBranchMap.guChen]);
+  if (guChenHits.length > 0) {
+    items.push({
+      key: "guchen",
+      name: "孤辰",
+      matchedPillars: guChenHits,
+      importance: "low",
+      meaning: "个体感、独自扛事、与人拉开距离的倾向更明显。",
+      advice: "遇事不要只靠自己消化，关系里更要主动表达需求。"
+    });
+  }
+
+  const guaSuHits = pickPillarHits(pillars, [groupBranchMap.guaSu]);
+  if (guaSuHits.length > 0) {
+    items.push({
+      key: "guasu",
+      name: "寡宿",
+      matchedPillars: guaSuHits,
+      importance: "low",
+      meaning: "关系体验里更容易出现落单感、情绪自闭或慢热防备。",
+      advice: "不代表婚恋一定不好，更提醒要练习稳定表达和现实陪伴。"
+    });
+  }
+
+  return {
+    items,
+    summary:
+      items.length > 0
+        ? `当前命盘中较显著的神煞有：${items.map((item) => item.name).join("、")}。`
+        : "当前命盘中没有特别集中的强提示型神煞，仍建议以旺衰、格局和流运为主轴判断。"
+  };
+}
+
+function buildAdvancedFlowAnalysis(
+  daYun: ReturnType<typeof getDaYunSummary>,
+  flowAnalysis: ReturnType<typeof getCurrentDaYunDetail>
+) {
+  if (!flowAnalysis.supported) {
+    return flowAnalysis;
+  }
+
+  const currentDaYun = flowAnalysis.currentDaYun!;
+  const currentLiuNian = flowAnalysis.currentLiuNian!;
+  const liuNianTimeline = flowAnalysis.liuNianTimeline ?? [];
+  const liuYue = flowAnalysis.liuYue ?? [];
+  const daYunPanels = daYun.supported ? (daYun.daYun ?? []) : [];
+
+  const yearlyScores = liuNianTimeline.map((item) => ({
+    year: item.year,
+    age: item.age,
+    ganzhi: item.ganzhi,
+    score:
+      item.flowInsight.favorability === "favorable"
+        ? 82
+        : item.flowInsight.favorability === "challenging"
+          ? 56
+          : 68,
+    tone:
+      item.flowInsight.favorability === "favorable"
+        ? "good"
+        : item.flowInsight.favorability === "challenging"
+          ? "care"
+          : "neutral",
+    note: item.flowInsight.note
+  }));
+
+  const monthlyScores = liuYue.map((item) => ({
+    month: item.monthChinese,
+    monthOrder: item.monthOrder,
+    ganzhi: item.ganzhi,
+    score:
+      item.flowInsight.favorability === "favorable"
+        ? 80
+        : item.flowInsight.favorability === "challenging"
+          ? 55
+          : 67,
+    tone:
+      item.flowInsight.favorability === "favorable"
+        ? "good"
+        : item.flowInsight.favorability === "challenging"
+          ? "care"
+          : "neutral",
+    note: item.flowInsight.note
+  }));
+
+  return {
+    focusYear: flowAnalysis.focusYear,
+    currentDaYunHeadline: `${currentDaYun.ganzhi} 大运（${currentDaYun.startYear}-${currentDaYun.endYear}）`,
+    currentYearHeadline: `${currentLiuNian.year} ${currentLiuNian.ganzhi}`,
+    yearlyScores,
+    monthlyScores,
+    favorableWindows: monthlyScores.filter((item) => item.tone === "good").slice(0, 4),
+    cautionWindows: monthlyScores.filter((item) => item.tone === "care").slice(0, 3),
+    daYunPanels: daYun.supported
+      ? daYunPanels.map((item) => ({
+          ganzhi: item.ganzhi,
+          yearRange: `${item.startYear}-${item.endYear}`,
+          ageRange: `${item.startAge}-${item.endAge}岁`
+        }))
+      : [],
+    strategySummary:
+      currentDaYun.flowInsight.favorability === "favorable"
+        ? "当前大运整体偏可发力，但更适合按节奏递进，不宜躁进。"
+        : currentDaYun.flowInsight.favorability === "challenging"
+          ? "当前大运更重结构调整和稳盘，重要动作宜挑流年流月窗口。"
+          : "当前大运偏中性，成败更看个人选择与月份窗口。"
+  };
+}
+
+export function buildLunarPickerOptions(
+  year: number,
+  month: number | undefined = undefined,
+  day: number | undefined = undefined
+) {
+  const lunarYear = LunarYear.fromYear(year);
+  const months = lunarYear.getMonthsInYear().map((item) => ({
+    value: item.getMonth(),
+    label: `${item.isLeap() ? "闰" : ""}${Math.abs(item.getMonth())}月`,
+    isLeap: item.isLeap(),
+    dayCount: item.getDayCount(),
+    ganzhi: item.getGanZhi()
+  }));
+
+  const pickedMonth = month !== undefined ? lunarYear.getMonth(month) : lunarYear.getMonthsInYear()[0];
+  const days =
+    pickedMonth !== null
+      ? Array.from({ length: pickedMonth.getDayCount() }, (_, index) => ({
+          value: index + 1,
+          label: `${index + 1}日`
+        }))
+      : [];
+
+  return {
+    year,
+    yearLabel: `${year}年`,
+    leapMonth: lunarYear.getLeapMonth(),
+    months,
+    days,
+    selected: {
+      month: pickedMonth?.getMonth() ?? null,
+      day: day ?? 1
+    },
+    hourOptions: [
+      { value: "23:00", label: "子时", range: "23:00-00:59" },
+      { value: "01:00", label: "丑时", range: "01:00-02:59" },
+      { value: "03:00", label: "寅时", range: "03:00-04:59" },
+      { value: "05:00", label: "卯时", range: "05:00-06:59" },
+      { value: "07:00", label: "辰时", range: "07:00-08:59" },
+      { value: "09:00", label: "巳时", range: "09:00-10:59" },
+      { value: "11:00", label: "午时", range: "11:00-12:59" },
+      { value: "13:00", label: "未时", range: "13:00-14:59" },
+      { value: "15:00", label: "申时", range: "15:00-16:59" },
+      { value: "17:00", label: "酉时", range: "17:00-18:59" },
+      { value: "19:00", label: "戌时", range: "19:00-20:59" },
+      { value: "21:00", label: "亥时", range: "21:00-22:59" }
+    ]
+  };
+}
+
 export function analyzeBazi(input: {
   calendarType: CalendarType;
   birthDate: string;
@@ -598,6 +1113,7 @@ export function analyzeBazi(input: {
   const strength = getStrengthAnalysis(pillars);
   const focusYear = input.focusYear ?? new Date().getFullYear();
   const daYun = getDaYunSummary(lunar, input.gender);
+  const shenShaAnalysis = buildShenShaAnalysis(pillars);
   const flowAnalysis = getCurrentDaYunDetail(
     lunar,
     input.gender,
@@ -669,9 +1185,11 @@ export function analyzeBazi(input: {
             ? "命局偏弱时，通常更适合先补印比根气，再承接财官事务。"
             : "命局较平时，可结合大运和流年流月选择更合适的发力窗口。"
     },
+    shenShaAnalysis,
     premiumAnalysis,
     daYun,
-    flowAnalysis
+    flowAnalysis,
+    flowAdvanced: buildAdvancedFlowAnalysis(daYun, flowAnalysis)
   };
 }
 
@@ -746,6 +1264,8 @@ export function analyzeBaziCompatibility(input: {
       frictionElements: frictionElements.map(toElementSummary),
       keyMessage: buildCompatibilityMessage(input.relationType, complementScore, sharedFavorable, frictionElements)
     },
+    compatibilityDashboard: buildCompatibilityDashboard(input.relationType, personA, personB, complementScore),
+    marketNarrative: buildCompatibilityMarketNarrative(input.relationType),
     compatibilityCharts: buildCompatibilityCharts(personA, personB, sharedFavorable, frictionElements),
     personA: {
       calendar: personA.calendar,
@@ -861,6 +1381,76 @@ function buildCompatibilityCharts(
     fiveElementContrast,
     synergyMatrix,
     textualPanels
+  };
+}
+
+function buildCompatibilityDashboard(
+  relationType: CompatibilityRelationType,
+  personA: ReturnType<typeof analyzeBazi>,
+  personB: ReturnType<typeof analyzeBazi>,
+  score: number
+) {
+  return {
+    hero: {
+      score,
+      relationType,
+      headline:
+        relationType === "same-sex-couple"
+          ? "亲密连接与现实承接要同时成立"
+          : relationType === "partner" || relationType === "colleague" || relationType === "boss-employee"
+            ? "分工与边界比单纯投缘更重要"
+            : "吸引、稳定与承接需要一起看"
+    },
+    dimensions: [
+      {
+        key: "emotional",
+        label: "情绪承接",
+        score: Math.max(48, Math.min(92, 60 + (personA.strengthAnalysis.level === personB.strengthAnalysis.level ? 12 : 2)))
+      },
+      {
+        key: "execution",
+        label: "现实执行",
+        score: Math.max(50, Math.min(94, 62 + (score >= 75 ? 14 : score >= 60 ? 6 : -2)))
+      },
+      {
+        key: "rhythm",
+        label: "节奏匹配",
+        score: Math.max(45, Math.min(90, 58 + Math.abs(personA.strengthAnalysis.delta - personB.strengthAnalysis.delta) < 2 ? 12 : 0))
+      }
+    ]
+  };
+}
+
+function buildCompatibilityMarketNarrative(relationType: CompatibilityRelationType) {
+  if (relationType === "same-sex-couple") {
+    return {
+      headline: "看亲密，也看现实支撑",
+      highlights: [
+        "重点拆解情绪回应、关系安全感和长期经营压力。",
+        "不是套用异性恋模板，而是看双方节奏、身份处境和现实承接。",
+        "适合追问公开关系、同居、共同财务与长期稳定性。"
+      ]
+    };
+  }
+
+  if (relationType === "partner" || relationType === "colleague" || relationType === "boss-employee") {
+    return {
+      headline: "看投缘，更看能不能一起成事",
+      highlights: [
+        "重点拆解谁适合主资源、谁适合主执行、谁适合主对外。",
+        "不仅看合作顺不顺，还看权责边界和风险点。",
+        "适合追问签约、团队调整、共事磨损和决策机制。"
+      ]
+    };
+  }
+
+  return {
+    headline: "看吸引，也看关系能不能落地",
+    highlights: [
+      "重点拆解舒服区、摩擦点和现实推进节奏。",
+      "不仅看有没有感觉，也看能不能共同生活或长期相处。",
+      "适合追问复合、推进、见家长、同居和关系定性。"
+    ]
   };
 }
 

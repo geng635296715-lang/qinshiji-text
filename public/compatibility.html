@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>青筮记 · VIP 八字合盘</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell" data-page="compatibility">
+      <header class="app-header">
+        <div class="app-title-group">
+          <p class="section-kicker">青筮记 · VIP 合盘</p>
+          <h1>八字合盘分析页</h1>
+          <p class="muted">
+            支持情侣、同性情侣、亲人、同事、老板员工、合伙人等关系类型，图文对照和 AI 深聊在同一页面完成。
+          </p>
+        </div>
+
+        <div class="mini-list">
+          <a class="chip" href="/index.html">返回入口</a>
+          <a class="chip" href="/bazi.html">切换到八字页</a>
+        </div>
+      </header>
+
+      <div class="app-grid">
+        <section class="left-column">
+          <div class="form-card">
+            <div class="section-title">
+              <div>
+                <p class="section-kicker">VIP 合盘输入</p>
+                <h2>双方信息</h2>
+              </div>
+              <span class="chip">图表 + 图文讲解</span>
+            </div>
+
+            <form id="compatibility-form">
+              <div class="form-grid">
+                <div class="field">
+                  <label for="relation-type">关系类型</label>
+                  <select id="relation-type" name="relationType">
+                    <option value="same-sex-couple">同性情侣</option>
+                    <option value="couple">情侣</option>
+                    <option value="partner">合伙人</option>
+                    <option value="colleague">同事</option>
+                    <option value="boss-employee">老板与员工</option>
+                    <option value="family">亲人</option>
+                    <option value="parent-child">父母子女</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="compat-focus-year">重点年份</label>
+                  <input id="compat-focus-year" name="focusYear" type="number" value="2026" />
+                </div>
+              </div>
+
+              <div class="dual-grid">
+                <div class="result-card person-form-card">
+                  <p class="card-label">人物 A</p>
+                  <div class="form-grid">
+                    <div class="field">
+                      <label for="a-date">出生日期</label>
+                      <input id="a-date" type="date" value="1994-10-12" />
+                    </div>
+                    <div class="field">
+                      <label for="a-time">出生时间</label>
+                      <input id="a-time" type="time" value="09:30" />
+                    </div>
+                    <div class="field">
+                      <label for="a-gender">性别</label>
+                      <select id="a-gender">
+                        <option value="female">女</option>
+                        <option value="male">男</option>
+                        <option value="other">其他</option>
+                      </select>
+                    </div>
+                    <div class="field">
+                      <label for="a-place">出生地</label>
+                      <input id="a-place" type="text" value="Shanghai" />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="result-card person-form-card">
+                  <p class="card-label">人物 B</p>
+                  <div class="form-grid">
+                    <div class="field">
+                      <label for="b-date">出生日期</label>
+                      <input id="b-date" type="date" value="1996-06-18" />
+                    </div>
+                    <div class="field">
+                      <label for="b-time">出生时间</label>
+                      <input id="b-time" type="time" value="20:30" />
+                    </div>
+                    <div class="field">
+                      <label for="b-gender">性别</label>
+                      <select id="b-gender">
+                        <option value="female">女</option>
+                        <option value="male">男</option>
+                        <option value="other">其他</option>
+                      </select>
+                    </div>
+                    <div class="field">
+                      <label for="b-place">出生地</label>
+                      <input id="b-place" type="text" value="Hangzhou" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="button-row">
+                <button class="primary-btn" type="submit">生成合盘结果</button>
+              </div>
+            </form>
+          </div>
+
+          <div id="compatibility-result" class="panel-card">
+            <div class="empty-state">
+              提交双方信息后，这里会显示合盘仪表板、旺衰对照、五行图表、关系重点、图文讲解与 VIP 分析。
+            </div>
+          </div>
+        </section>
+
+        <aside class="right-column">
+          <div class="ai-card sticky-card">
+            <div class="section-title">
+              <div>
+                <p class="ai-kicker">青筮记 · DeepSeek</p>
+                <h2>合盘 AI 咨询栏</h2>
+              </div>
+              <span class="chip">读取当前合盘结果</span>
+            </div>
+
+            <div id="compatibility-ai-chat" class="chat-list">
+              <div class="chat-bubble assistant">
+                生成合盘结果后，可以继续问关系稳定性、共事分工、冲突点、长期经营、同性情侣专项和阶段节奏等问题。
+              </div>
+            </div>
+
+            <div class="suggestion-strip" id="compatibility-ai-suggestions"></div>
+
+            <div class="ai-input">
+              <textarea
+                id="compatibility-ai-question"
+                placeholder="例如：如果我们是同性情侣，这段关系在现实承接和长期规划上最要注意什么？"
+              ></textarea>
+              <button class="primary-btn" id="compatibility-ai-send" type="button">发送给 AI 命理师</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <script src="/compatibility.js" type="module"></script>
+  </body>
+</html>

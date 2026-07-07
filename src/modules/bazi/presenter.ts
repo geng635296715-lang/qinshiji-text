@@ -135,6 +135,22 @@ export function buildBaziPageView(result: BaziAnalysisResult) {
             type: "month-grid",
             title: "当年流月",
             data: result.flowAnalysis.supported ? result.flowAnalysis.liuYue : []
+          },
+          {
+            type: "flow-advanced",
+            title: "专业流运节奏",
+            data: result.flowAdvanced
+          }
+        ]
+      },
+      {
+        key: "shensha",
+        label: "神煞",
+        sections: [
+          {
+            type: "shensha-summary",
+            title: "神煞总览",
+            data: result.shenShaAnalysis
           }
         ]
       },
@@ -178,14 +194,17 @@ export function buildBaziAiContext(result: BaziAnalysisResult) {
       delta: result.strengthAnalysis.delta,
       favorableUsage: result.overview.favorableUsage,
       displayNote: result.overview.displayNote,
-      wuxingBalanceHint: result.overview.wuxingBalanceHint
+      wuxingBalanceHint: result.overview.wuxingBalanceHint,
+      shenShaSummary: result.shenShaAnalysis.summary,
+      shenShaItems: result.shenShaAnalysis.items
     },
     flowContext: result.flowAnalysis.supported
       ? {
           currentDaYun: result.flowAnalysis.currentDaYun,
           currentLiuNian: result.flowAnalysis.currentLiuNian,
           liuNianTimeline: result.flowAnalysis.liuNianTimeline,
-          liuYue: result.flowAnalysis.liuYue
+          liuYue: result.flowAnalysis.liuYue,
+          advanced: result.flowAdvanced
         }
       : result.flowAnalysis,
     premiumContext: result.premiumAnalysis.unlocked
@@ -238,7 +257,8 @@ export function buildCompatibilityPageView(result: BaziCompatibilityResult) {
       level: result.pairSummary.compatibilityLevel,
       keyMessage: result.pairSummary.keyMessage,
       sharedFavorableElements: result.pairSummary.sharedFavorableElements,
-      frictionElements: result.pairSummary.frictionElements
+      frictionElements: result.pairSummary.frictionElements,
+      headline: result.marketNarrative.headline
     },
     tabs: [
       {
@@ -269,6 +289,11 @@ export function buildCompatibilityPageView(result: BaziCompatibilityResult) {
             type: "synergy-cards",
             title: "关系协同",
             data: [result.synergy.emotional, result.synergy.collaboration, result.synergy.rhythm]
+          },
+          {
+            type: "market-narrative",
+            title: "关系重点",
+            data: result.marketNarrative
           }
         ]
       },
@@ -276,6 +301,11 @@ export function buildCompatibilityPageView(result: BaziCompatibilityResult) {
         key: "charts",
         label: "图表对照",
         sections: [
+          {
+            type: "compatibility-dashboard",
+            title: "合盘仪表板",
+            data: result.compatibilityDashboard
+          },
           {
             type: "strength-chart",
             title: result.compatibilityCharts.strengthChart.title,
@@ -343,6 +373,8 @@ export function buildCompatibilityAiContext(result: BaziCompatibilityResult) {
     relationType: result.relationType,
     relationLabel: result.relationLabel,
     pairSummary: result.pairSummary,
+    compatibilityDashboard: result.compatibilityDashboard,
+    marketNarrative: result.marketNarrative,
     people: {
       personA: {
         solar: result.personA.calendar.solar,

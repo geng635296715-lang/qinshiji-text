@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>青筮记 · 八字命理详解</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell" data-page="bazi">
+      <header class="app-header">
+        <div class="app-title-group">
+          <p class="section-kicker">青筮记 · 八字命理详解</p>
+          <h1>八字命盘工作台</h1>
+          <p class="muted">
+            公历 / 农历切换、天干地支五行配色、神煞总览、流年流月节奏、VIP 解读和 AI 命理咨询已整合到同一页面。
+          </p>
+        </div>
+
+        <div class="mini-list">
+          <a class="chip" href="/index.html">返回入口</a>
+          <a class="chip" href="/compatibility.html">进入合盘页</a>
+        </div>
+      </header>
+
+      <div class="app-grid">
+        <section class="left-column">
+          <div class="form-card">
+            <div class="section-title">
+              <div>
+                <p class="section-kicker">排盘输入</p>
+                <h2>基础信息</h2>
+              </div>
+              <div class="mini-list">
+                <span class="chip">五行配色</span>
+                <span class="chip">农历选择器</span>
+              </div>
+            </div>
+
+            <form id="bazi-form">
+              <div class="form-grid">
+                <div class="field">
+                  <label for="calendar-type">历法类型</label>
+                  <select id="calendar-type" name="calendarType">
+                    <option value="solar">公历</option>
+                    <option value="lunar">农历</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="gender">性别</label>
+                  <select id="gender" name="gender">
+                    <option value="female">女</option>
+                    <option value="male">男</option>
+                    <option value="other">其他</option>
+                  </select>
+                </div>
+              </div>
+
+              <div id="solar-fields" class="form-grid">
+                <div class="field">
+                  <label for="birth-date">出生日期</label>
+                  <input id="birth-date" name="birthDate" type="date" value="1994-10-12" />
+                </div>
+                <div class="field">
+                  <label for="birth-time">出生时间</label>
+                  <input id="birth-time" name="birthTime" type="time" value="09:30" />
+                </div>
+              </div>
+
+              <div id="lunar-fields" class="form-grid quad" hidden>
+                <div class="field">
+                  <label for="lunar-year">农历年份</label>
+                  <input id="lunar-year" name="lunarYear" type="number" value="1994" min="1900" max="2099" />
+                </div>
+                <div class="field">
+                  <label for="lunar-month">农历月份</label>
+                  <select id="lunar-month" name="lunarMonth"></select>
+                </div>
+                <div class="field">
+                  <label for="lunar-day">农历日期</label>
+                  <select id="lunar-day" name="lunarDay"></select>
+                </div>
+                <div class="field">
+                  <label for="lunar-hour">出生时辰</label>
+                  <select id="lunar-hour" name="lunarHour"></select>
+                </div>
+              </div>
+
+              <div class="form-grid">
+                <div class="field">
+                  <label for="birth-place">出生地</label>
+                  <input id="birth-place" name="birthPlace" type="text" value="Shanghai" />
+                </div>
+                <div class="field">
+                  <label for="focus-year">重点年份</label>
+                  <input id="focus-year" name="focusYear" type="number" value="2026" />
+                </div>
+              </div>
+
+              <div class="button-row">
+                <button class="primary-btn" type="submit">生成八字结果</button>
+                <button class="ghost-btn" type="button" id="load-lunar">刷新农历选项</button>
+              </div>
+            </form>
+          </div>
+
+          <div id="bazi-result" class="panel-card">
+            <div class="empty-state">
+              提交出生信息后，这里会显示八字主盘、五行比例、神煞、流年流月、VIP 专项解读与图文说明。
+            </div>
+          </div>
+        </section>
+
+        <aside class="right-column">
+          <div class="ai-card sticky-card">
+            <div class="section-title">
+              <div>
+                <p class="ai-kicker">青筮记 · DeepSeek</p>
+                <h2>AI 命理咨询栏</h2>
+              </div>
+              <span class="chip">读取当前八字结果</span>
+            </div>
+
+            <div id="bazi-ai-chat" class="chat-list">
+              <div class="chat-bubble assistant">
+                生成八字结果后，可以继续追问事业、感情、财运、健康、流年流月、喜用神落地建议等问题。
+              </div>
+            </div>
+
+            <div class="suggestion-strip" id="bazi-ai-suggestions"></div>
+
+            <div class="ai-input">
+              <textarea
+                id="bazi-ai-question"
+                placeholder="例如：结合我的八字和 2026 流年，接下来半年事业推进最应该避开什么？"
+              ></textarea>
+              <button class="primary-btn" id="bazi-ai-send" type="button">发送给 AI 命理师</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <script src="/bazi.js" type="module"></script>
+  </body>
+</html>
