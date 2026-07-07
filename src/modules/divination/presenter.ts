@@ -46,6 +46,11 @@ export function buildLiuyaoPageView(result: LiuyaoResult) {
         data: result.frontend.lineBoard
       },
       {
+        type: "advanced-pattern",
+        title: "鍏埢瀹屾暣鎺掔洏",
+        data: result.advancedPattern
+      },
+      {
         type: "moving-lines",
         title: "动爻重点",
         data: result.movingLineInsights
@@ -104,6 +109,16 @@ export function buildMeihuaPageView(result: MeihuaResult) {
         type: "body-use",
         title: "体用关系",
         data: result.frontend.bodyUseCard
+      },
+      {
+        type: "external-omen",
+        title: "澶栧簲鍙傝€?",
+        data: result.externalOmenAnalysis
+      },
+      {
+        type: "topic-templates",
+        title: "鏇村畬鏁寸殑鏂簨妯℃澘",
+        data: result.topicTemplates
       },
       {
         type: "topic-panels",

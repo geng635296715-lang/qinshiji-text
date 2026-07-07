@@ -32,6 +32,7 @@ const liuyaoSchema = z.object({
   title: z.string().min(1),
   description: z.string().optional(),
   castingMode: z.enum(["auto", "manual"]),
+  occurredAt: z.string().optional(),
   lines: z.array(liuyaoLineSchema).length(6).optional()
 });
 
@@ -40,8 +41,20 @@ const meihuaSchema = z.object({
   title: z.string().min(1),
   description: z.string().optional(),
   castingMode: z.enum(["numbers", "time"]),
+  timeMethod: z.enum(["ymd", "ymdh", "ymdhm", "lunar-ymdh"]).optional(),
   numbers: z.array(z.number().int()).min(2).max(3).optional(),
-  occurredAt: z.string().optional()
+  occurredAt: z.string().optional(),
+  externalOmen: z
+    .object({
+      direction: z.string().optional(),
+      sound: z.string().optional(),
+      color: z.string().optional(),
+      motion: z.string().optional(),
+      countNumber: z.number().int().optional(),
+      touchedObject: z.string().optional(),
+      scene: z.string().optional()
+    })
+    .optional()
 });
 
 export async function registerDivinationRoutes(app: FastifyInstance) {

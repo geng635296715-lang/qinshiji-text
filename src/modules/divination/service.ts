@@ -1,3 +1,4 @@
+import { Solar } from "lunar-typescript";
 import type { DivinationTopic } from "../../shared/types/domain.js";
 
 type LiuyaoLineType = "old-yin" | "young-yang" | "young-yin" | "old-yang";
@@ -9,6 +10,7 @@ type LiuyaoInput = {
   title: string;
   description?: string;
   castingMode: "auto" | "manual";
+  occurredAt?: string;
   lines?: LiuyaoLineType[];
 };
 
@@ -17,8 +19,18 @@ type MeihuaInput = {
   title: string;
   description?: string;
   castingMode: "numbers" | "time";
+  timeMethod?: "ymd" | "ymdh" | "ymdhm" | "lunar-ymdh";
   numbers?: number[];
   occurredAt?: string;
+  externalOmen?: {
+    direction?: string;
+    sound?: string;
+    color?: string;
+    motion?: string;
+    countNumber?: number;
+    touchedObject?: string;
+    scene?: string;
+  };
 };
 
 type TrigramMeta = {
@@ -52,6 +64,21 @@ type TopicGuidance = {
     likelyZones: string[];
     searchOrder: string[];
   };
+};
+
+type DivinationTimeContext = {
+  occurredAt: string;
+  solar: string;
+  lunar: string;
+  jieQi: string | null;
+  yearGanzhi: string;
+  monthGanzhi: string;
+  dayGanzhi: string;
+  hourGanzhi: string;
+  monthBuild: string;
+  dayBuild: string;
+  monthElement: WuXing;
+  dayElement: WuXing;
 };
 
 const LIUYAO_LINE_MAP: Record<
@@ -167,6 +194,83 @@ const LINE_POSITION_MEANINGS = [
   "上爻主结果与收尾，也提醒过满、过急或尾段失衡。"
 ];
 
+const ELEMENT_WOOD = TRIGRAMS.find((item) => item.key === "zhen")!.element;
+const ELEMENT_FIRE = TRIGRAMS.find((item) => item.key === "li")!.element;
+const ELEMENT_EARTH = TRIGRAMS.find((item) => item.key === "kun")!.element;
+const ELEMENT_METAL = TRIGRAMS.find((item) => item.key === "qian")!.element;
+const ELEMENT_WATER = TRIGRAMS.find((item) => item.key === "kan")!.element;
+
+function getBranchElement(branch: string): WuXing {
+  if (["瀵?", "鍗?"].includes(branch)) return ELEMENT_WOOD;
+  if (["宸?", "鍗?"].includes(branch)) return ELEMENT_FIRE;
+  if (["鐢?", "閰?"].includes(branch)) return ELEMENT_METAL;
+  if (["瀛?", "浜?"].includes(branch)) return ELEMENT_WATER;
+  return ELEMENT_EARTH;
+}
+
+function getStemElement(stem: string): WuXing {
+  if (["鐢?", "涔?"].includes(stem)) return ELEMENT_WOOD;
+  if (["涓?", "涓?"].includes(stem)) return ELEMENT_FIRE;
+  if (["搴?", "杈?"].includes(stem)) return ELEMENT_METAL;
+  if (["澹?", "鐧?"].includes(stem)) return ELEMENT_WATER;
+  return ELEMENT_EARTH;
+}
+
+const SIX_SPIRITS = ["闈掗緳", "鏈遍泙", "鍕鹃檲", "鑵捐泧", "鐧借檸", "鐜勬"];
+
+function getSixSpiritStart(dayStem: string) {
+  if (["鐢?", "涔?"].includes(dayStem)) return 0;
+  if (["涓?", "涓?"].includes(dayStem)) return 1;
+  if (dayStem === "鎴?") return 2;
+  if (dayStem === "宸?") return 3;
+  if (["搴?", "杈?"].includes(dayStem)) return 4;
+  return 5;
+}
+
+const NAJIA_LOWER_STEM: Record<TrigramKey, string> = {
+  qian: "鐢?",
+  dui: "涓?",
+  li: "宸?",
+  zhen: "搴?",
+  xun: "杈?",
+  kan: "鎴?",
+  gen: "涓?",
+  kun: "涔?"
+};
+
+const NAJIA_UPPER_STEM: Record<TrigramKey, string> = {
+  qian: "澹?",
+  dui: "涓?",
+  li: "宸?",
+  zhen: "搴?",
+  xun: "杈?",
+  kan: "鎴?",
+  gen: "涓?",
+  kun: "鐧?"
+};
+
+const NAJIA_BRANCHES: Record<TrigramKey, [string, string, string]> = {
+  qian: ["瀛?", "瀵?", "杈?"],
+  dui: ["宸?", "鍗?", "涓?"],
+  li: ["鍗?", "涓?", "浜?"],
+  zhen: ["瀛?", "瀵?", "杈?"],
+  xun: ["涓?", "浜?", "閰?"],
+  kan: ["瀵?", "杈?", "鍗?"],
+  gen: ["杈?", "鍗?", "鐢?"],
+  kun: ["鏈?", "宸?", "鍗?"]
+};
+
+const SHI_YING_BY_TRIGRAM: Record<TrigramKey, { shi: number; ying: number }> = {
+  qian: { shi: 6, ying: 3 },
+  dui: { shi: 5, ying: 2 },
+  li: { shi: 4, ying: 1 },
+  zhen: { shi: 3, ying: 6 },
+  xun: { shi: 2, ying: 5 },
+  kan: { shi: 1, ying: 4 },
+  gen: { shi: 4, ying: 1 },
+  kun: { shi: 3, ying: 6 }
+};
+
 function normalizeMod(value: number, base: number) {
   const mod = value % base;
   return mod === 0 ? base : mod;
@@ -183,6 +287,101 @@ function getTrigramByLines(lines: [number, number, number]) {
 
 function getHexagramMeta(lower: TrigramMeta, upper: TrigramMeta): HexagramMeta {
   return HEXAGRAMS[`${lower.key}-${upper.key}`];
+}
+
+function getSolarFromOccurredAt(occurredAt?: string) {
+  const date = occurredAt ? new Date(occurredAt) : new Date();
+  if (Number.isNaN(date.getTime())) {
+    throw new Error("occurredAt must be a valid date string");
+  }
+
+  return Solar.fromYmdHms(
+    date.getFullYear(),
+    date.getMonth() + 1,
+    date.getDate(),
+    date.getHours(),
+    date.getMinutes(),
+    date.getSeconds()
+  );
+}
+
+function getElementFromGanzhi(ganzhi: string): WuXing {
+  const branch = ganzhi.charAt(1);
+  return getBranchElement(branch) ?? getStemElement(ganzhi.charAt(0)) ?? ELEMENT_EARTH;
+}
+
+function getRelationLabel(dayElement: WuXing, targetElement: WuXing) {
+  if (dayElement === targetElement) {
+    return "鍏勫紵";
+  }
+
+  const generates =
+    dayElement === ELEMENT_WOOD
+      ? ELEMENT_FIRE
+      : dayElement === ELEMENT_FIRE
+        ? ELEMENT_EARTH
+        : dayElement === ELEMENT_EARTH
+          ? ELEMENT_METAL
+          : dayElement === ELEMENT_METAL
+            ? ELEMENT_WATER
+            : ELEMENT_WOOD;
+
+  const controlledByTarget =
+    targetElement === ELEMENT_WOOD
+      ? ELEMENT_FIRE
+      : targetElement === ELEMENT_FIRE
+        ? ELEMENT_EARTH
+        : targetElement === ELEMENT_EARTH
+          ? ELEMENT_METAL
+          : targetElement === ELEMENT_METAL
+            ? ELEMENT_WATER
+            : ELEMENT_WOOD;
+
+  const controls =
+    dayElement === ELEMENT_WOOD
+      ? ELEMENT_EARTH
+      : dayElement === ELEMENT_FIRE
+        ? ELEMENT_METAL
+        : dayElement === ELEMENT_EARTH
+          ? ELEMENT_WATER
+          : dayElement === ELEMENT_METAL
+            ? ELEMENT_WOOD
+            : ELEMENT_FIRE;
+
+  if (controlledByTarget === dayElement) {
+    return "鐖舵瘝";
+  }
+  if (generates === targetElement) {
+    return "瀛愬瓩";
+  }
+  if (controls === targetElement) {
+    return "濡昏储";
+  }
+  return "瀹橀";
+}
+
+function buildDivinationTimeContext(occurredAt?: string): DivinationTimeContext {
+  const solar = getSolarFromOccurredAt(occurredAt);
+  const lunar = solar.getLunar();
+
+  const monthGanzhi = lunar.getMonthInGanZhi();
+  const dayGanzhi = lunar.getDayInGanZhi();
+  const hourGanzhi = lunar.getTimeInGanZhi();
+
+  return {
+    occurredAt: solar.toYmdHms(),
+    solar: solar.toYmdHms(),
+    lunar: `${lunar.getYearInChinese()}骞?${lunar.getMonthInChinese()}鏈?${lunar.getDayInChinese()}`,
+    jieQi: lunar.getJieQi() || null,
+    yearGanzhi: lunar.getYearInGanZhi(),
+    monthGanzhi,
+    dayGanzhi,
+    hourGanzhi,
+    monthBuild: monthGanzhi.charAt(1),
+    dayBuild: dayGanzhi.charAt(1),
+    monthElement: getElementFromGanzhi(monthGanzhi),
+    dayElement: getElementFromGanzhi(dayGanzhi)
+  };
 }
 
 function getElementRelation(source: WuXing, target: WuXing) {
@@ -376,6 +575,175 @@ function buildSearchAdvice(directions: string[], movement: string) {
   };
 }
 
+function buildLiuyaoAdvancedPattern(
+  primary: ReturnType<typeof buildHexagramFromBinary>,
+  lineDetails: Array<{ fromBottom: number; changing: boolean; value: 0 | 1 }>,
+  occurredAt?: string
+) {
+  const timeContext = buildDivinationTimeContext(occurredAt);
+  const shiYing = SHI_YING_BY_TRIGRAM[primary.lower.key];
+  const dayStem = timeContext.dayGanzhi.charAt(0);
+  const dayElement = getStemElement(dayStem);
+  const spiritStart = getSixSpiritStart(dayStem);
+
+  const lowerBranches = NAJIA_BRANCHES[primary.lower.key];
+  const upperBranches = NAJIA_BRANCHES[primary.upper.key];
+  const lowerStem = NAJIA_LOWER_STEM[primary.lower.key];
+  const upperStem = NAJIA_UPPER_STEM[primary.upper.key];
+
+  const lineChart = lineDetails.map((line, index) => {
+    const isUpper = index >= 3;
+    const branch = isUpper ? upperBranches[index - 3] : lowerBranches[index];
+    const stem = isUpper ? upperStem : lowerStem;
+    const lineElement = getBranchElement(branch) ?? getStemElement(stem) ?? ELEMENT_EARTH;
+    const spirit = SIX_SPIRITS[(spiritStart + index) % SIX_SPIRITS.length];
+    const monthBuildRelation = getElementRelation(lineElement, timeContext.monthElement);
+    const dayBuildRelation = getElementRelation(lineElement, timeContext.dayElement);
+
+    return {
+      position: line.fromBottom,
+      shiRole: line.fromBottom === shiYing.shi ? "涓栫埢" : line.fromBottom === shiYing.ying ? "搴旂埢" : "鏅€氱埢",
+      liuQin: getRelationLabel(dayElement, lineElement),
+      liuShen: spirit,
+      naJia: `${stem}${branch}`,
+      branch,
+      stem,
+      lineElement,
+      monthBuildRelation,
+      dayBuildRelation,
+      moving: line.changing,
+      visible: line.value === 1 ? "闃崇埢" : "闃寸埢"
+    };
+  });
+
+  const missingRelations = ["鐖舵瘝", "鍏勫紵", "瀛愬瓩", "濡昏储", "瀹橀"].filter(
+    (relation) => !lineChart.some((item) => item.liuQin === relation)
+  );
+
+  const hiddenGods = missingRelations.map((relation, index) => ({
+    relation,
+    hiddenAt: lineChart[index % lineChart.length].position,
+    note: `褰撳墠鍗︿腑鏄庣埢鏈槑鏄炬壙杞?${relation}锛屽彲浣滀负浼忕鍙傝€冦€?`
+  }));
+
+  return {
+    timeContext,
+    shiYing,
+    lineChart,
+    hiddenGods,
+    ruleSummary: {
+      monthBuild: timeContext.monthBuild,
+      dayBuild: timeContext.dayBuild,
+      dominantRelations: lineChart
+        .filter((item) => item.shiRole !== "鏅€氱埢" || item.moving)
+        .map((item) => `${item.shiRole}${item.liuQin}`)
+    }
+  };
+}
+
+function buildMeihuaExternalOmen(
+  externalOmen: MeihuaInput["externalOmen"],
+  primary: ReturnType<typeof buildHexagramFromBinary>,
+  changed: ReturnType<typeof buildHexagramFromBinary>
+) {
+  if (!externalOmen) {
+    return null;
+  }
+
+  const matchedTrigrams: string[] = [];
+  const notes: string[] = [];
+
+  if (externalOmen.direction) {
+    const hit = TRIGRAMS.find((item) => externalOmen.direction?.includes(item.direction.slice(0, 1)));
+    if (hit) {
+      matchedTrigrams.push(hit.name);
+      notes.push(`鏂瑰悜澶栧簲鍋忓悜${hit.name}${hit.image}涔嬭薄銆?`);
+    }
+  }
+
+  if (externalOmen.color) {
+    if (/绾?涓?/u.test(externalOmen.color)) notes.push("棰滆壊澶栧簲鍋忕伀锛屽己璋冩€佸害銆佹洕鍏夈€佽〃杈俱€?");
+    if (/榛?钃?/u.test(externalOmen.color)) notes.push("棰滆壊澶栧簲鍋忔按锛屽己璋冩儏缁€佹祦鍔ㄣ€侀殣鎬у彉鍖栥€?");
+    if (/榛?鐧?/u.test(externalOmen.color)) notes.push("棰滆壊澶栧簲鍋忛噾锛屽己璋冭鍒欍€佸彇鑸嶃€佺粨鏋滃垽鏂€?");
+  }
+
+  if (externalOmen.motion) {
+    notes.push(`鍔ㄦ€�澶栧簲涓?${externalOmen.motion}锛屽緢閫傚悎鐢ㄦ潵鍗拌瘉鏈崷鍒板彉鍗︾殑杞姌鑺傚銆?`);
+  }
+
+  if (externalOmen.sound) {
+    notes.push(`澹伴煶澶栧簲涓?${externalOmen.sound}锛屽父鐢ㄦ潵杈呭姪鍒ゆ柇鏄惁鏈夊閮ㄤ俊鍙锋寜涓嬭浆鏈恒€?`);
+  }
+
+  return {
+    matchedTrigrams,
+    notes,
+    synthesis: `澶栧簲淇℃伅鍙笌鏈崷${primary.meta.name}銆佸彉鍗?${changed.meta.name}鐩镐簰鍗拌瘉锛屾洿閫傚悎鐢ㄦ潵鍒ゆ柇鐭湡楠岃瘉鐐瑰拰鐜板満璇銆?`
+  };
+}
+
+function buildMeihuaTopicTemplates(
+  topic: DivinationTopic,
+  relation: string,
+  movingLine: number,
+  externalOmen: ReturnType<typeof buildMeihuaExternalOmen>
+) {
+  const base: Record<DivinationTopic, string[]> = {
+    love: [
+      "鐪嬩富鍔ㄤ竴鏂规槸鍚︽効鎰忕户缁姇鍏ャ€?",
+      "鐪嬪弻鏂硅妭濂忔槸鍚﹀悓姝ワ紝鑰屼笉鍙湅鐭湡鐑害銆?",
+      "鐪嬪姩鐖诲湪鍓嶄腑鍚庡摢涓€娈碉紝鍒ゆ柇鍙樺寲浼氬厛鍙戠敓鍦ㄦ€佸害銆佷簰鍔ㄨ繕鏄粨鏋溿€?"
+    ],
+    career: [
+      "鐪嬩綋鍗︽槸鍚︽壙寰椾綇鐢ㄥ崷锛屽喅瀹氳兘鍔涘拰鏈轰細鏄惁鍖归厤銆?",
+      "鐪嬪彉鍗︽槸鍚﹁蛋鍚戞洿瀹炵殑钀藉湴璞★紝鍒ゆ柇椤圭洰鏄惁鑳芥帹鎴愩€?",
+      "鐪嬪姩鐖婚儴浣嶏紝鍒ゆ柇鍗＄偣鏄湪寮€灞€銆佷腑娈垫懇鎿︼紝杩樻槸鏀跺熬鍙樼幇銆?"
+    ],
+    wealth: [
+      "鐪嬭储鏄惁鑳借繘鍙ｈ锛岃€屼笉鍙槸琛ㄩ潰鏈夋満浼氥€?",
+      "鐪嬪彉鍗﹀悗鏄杩樻槸鏁ｏ紝鍒ゆ柇鐜伴噾娴佺ǔ涓嶇ǔ銆?",
+      "鐪嬪搴旀槸鍚﹀嚭鐜版槑鏄惧偓鍔ㄤ俊鍙凤紝鍒ゆ柇鏄惁閫傚悎鐭嚎鎿嶄綔銆?"
+    ],
+    health: [
+      "鐪嬩綋鍗︽槸鍚﹁兘鎵垮彈鐢ㄥ崷鐨勫帇鍔涳紝鍒ゆ柇鏄惁闇€瑕佸厛鍋滀笅鏉ヨ皟鏁淬€?",
+      "鐪嬪彉鍗︽槸鍚﹁蛋鍚戞洿绋冲畾鐨勫崷璞★紝鍒ゆ柇鎭㈠鍜岃皟鍏荤殑鍚庡姴銆?",
+      "鐪嬪搴旀槸鍚﹀嚭鐜版樉鑰屾槗瑙佺殑鑰楄兘淇″彿锛屽父鐢ㄦ潵鍒ゆ柇浣滄伅銆佹儏缁垨韬綋鐨勫綋涓嬪弽搴斻€?"
+    ],
+    travel: [
+      "鐪嬫湰鍗﹀拰鍙樺崷鏄悗璺嚎鏄惁绋炽€佽妭濂忔槸鍚﹀規槗琚墦涔便€?",
+      "鐪嬪姩鐖绘墍鍦ㄦ浣嶏紝鍒ゆ柇鏄嚭鍙戝墠銆佽矾涓繕鏄埌杈惧悗鏇撮渶瑕佹敞鎰忋€?",
+      "鐪嬪搴旂殑鏂瑰悜銆佸０闊冲拰鐜板満鍔ㄧ嚎锛屽父鐢ㄦ潵鍋氬嚭琛屽繉瀹滅殑鐭湡鏍″銆?"
+    ],
+    relationship: [
+      "鐪嬩綋鐢ㄦ槸鐩哥敓杩樻槸鐩稿厠锛屽喅瀹氬叧绯诲綋涓嬫槸浜掔浉鎵樹妇杩樻槸浜掔浉娑堣€椼€?",
+      "鐪嬪彉鍗︽槸鍚︽湁鏇村ソ鐨勫悗鍔匡紝鍒ゆ柇鍏崇郴鏄惁鏈夎皟鏁村拰淇绌洪棿銆?",
+      "鐪嬪姩鐖绘墍鍦ㄦ浣嶏紝鍙互甯姪鍒ゆ柇鍗＄偣鏄湪寮€澶淬€佷簰鍔ㄨ繕鏄粨鏋滀笂銆?"
+    ],
+    "missing-item": [
+      "鐪嬫湰鍗︽柟浣嶄笌澶栧簲鏂瑰悜鏄惁鐩镐簰鍗拌瘉銆?",
+      "鐪嬪姩鐖绘槸鍓嶆銆佷腑娈佃繕鏄悗娈碉紝鍒ゆ柇鐗╁搧鏄湪璧风偣銆侀€斾腑杩樻槸缁堢偣鍖哄煙銆?",
+      "鐪嬪搴旈噷鐨勯鑹层€佸姩浣溿€佽Е纰扮墿锛屽父鑳界粰鍑哄叿浣撳湴鐐规彁绀恒€?"
+    ],
+    decision: [
+      "鐪嬩綋鐢ㄦ槸鐩哥敓杩樻槸鐩稿厠锛屽喅瀹氭槸鍚﹂€傚悎鐜板湪灏卞仛瀹氥€?",
+      "鐪嬪彉鍗︽槸鍚︽瘮鏈崷鏇寸ǔ锛屽喅瀹氭槸鍚︽湁鍚庡姴銆?",
+      `鐪嬪姩鐖诲湪绗?${movingLine}鐖诧紝涓€鑸彁閱掕鍦ㄥ搴旈樁娈垫墍鍦ㄧ殑鍏抽敭鑺傜偣鍋氬垽鏂€?`
+    ],
+    other: [
+      "鐪嬫湰鍗︾煭鏈熶富棰橈紝鍐嶇湅鍙樺崷鍚庣画鍘诲悜銆?",
+      "鐪嬩綋鐢ㄧ浉澶勶紝鍒ゆ柇鑷韩鍜屽鍦ㄥ摢涓€杈规洿涓诲銆?",
+      "鐪嬪搴旀槸鍚﹁兘涓庡綋鍓嶅崷璞″舰鎴愮幇鍦洪獙璇併€?"
+    ]
+  };
+
+  const selected = base[topic] ?? base.other;
+  return {
+    relation,
+    templates: selected,
+    externalOmenNote: externalOmen?.synthesis ?? null
+  };
+}
+
 function buildTopicGuidance(input: {
   topic: DivinationTopic;
   mode: "liuyao" | "meihua";
@@ -534,6 +902,7 @@ export function castLiuyao(input: LiuyaoInput) {
   const primary = buildHexagramFromBinary(primaryBinary);
   const transformed = buildHexagramFromBinary(transformedBinary);
   const movingLines = lineDetails.filter((item) => item.changing).map((item) => item.fromBottom);
+  const advancedPattern = buildLiuyaoAdvancedPattern(primary, lineDetails, input.occurredAt);
   const interpretation = buildLiuyaoSummary(primary, transformed, movingLines, input.topic);
   const topicGuidance = buildTopicGuidance({
     topic: input.topic,
@@ -549,6 +918,7 @@ export function castLiuyao(input: LiuyaoInput) {
     input,
     method: "liuyao" as const,
     topicLabel: TOPIC_LABELS[input.topic],
+    timeContext: input.occurredAt ? buildDivinationTimeContext(input.occurredAt) : advancedPattern.timeContext,
     animation: {
       type: "coin-shell",
       title: "金钱课铜钱龟壳起卦",
@@ -574,6 +944,7 @@ export function castLiuyao(input: LiuyaoInput) {
     },
     lines: lineDetails,
     movingLines,
+    advancedPattern,
     movingLineInsights: buildMovingLineInsights(movingLines, input.topic),
     interpretation,
     topicGuidance,
@@ -588,23 +959,49 @@ export function castLiuyao(input: LiuyaoInput) {
   };
 }
 
-function getTimeNumbers(occurredAt?: string) {
-  const now = occurredAt ? new Date(occurredAt) : new Date();
-  if (Number.isNaN(now.getTime())) {
-    throw new Error("occurredAt must be a valid date string");
-  }
+function getTimeNumbers(
+  occurredAt?: string,
+  timeMethod: MeihuaInput["timeMethod"] = "ymdhm",
+  externalCount = 0
+) {
+  const solar = getSolarFromOccurredAt(occurredAt);
+  const lunar = solar.getLunar();
+  const year = solar.getYear();
+  const month = solar.getMonth();
+  const day = solar.getDay();
+  const hour = solar.getHour();
+  const minute = solar.getMinute();
 
-  const year = now.getFullYear();
-  const month = now.getMonth() + 1;
-  const day = now.getDate();
-  const hour = now.getHours();
-  const minute = now.getMinutes();
+  const base =
+    timeMethod === "ymd"
+      ? {
+          upperSeed: year + month + day,
+          lowerSeed: year + month + day + month,
+          movingSeed: year + month + day
+        }
+      : timeMethod === "ymdh"
+        ? {
+            upperSeed: year + month + day,
+            lowerSeed: year + month + day + hour,
+            movingSeed: year + month + day + hour
+          }
+        : timeMethod === "lunar-ymdh"
+          ? {
+              upperSeed: lunar.getYear() + lunar.getMonth() + lunar.getDay(),
+              lowerSeed: lunar.getYear() + lunar.getMonth() + lunar.getDay() + hour,
+              movingSeed: lunar.getYear() + lunar.getMonth() + lunar.getDay() + hour
+            }
+          : {
+              upperSeed: year + month + day,
+              lowerSeed: year + month + day + hour,
+              movingSeed: year + month + day + hour + minute
+            };
 
   return {
-    occurredAt: now.toISOString(),
-    upperSeed: year + month + day,
-    lowerSeed: year + month + day + hour,
-    movingSeed: year + month + day + hour + minute
+    occurredAt: solar.toYmdHms(),
+    upperSeed: base.upperSeed + externalCount,
+    lowerSeed: base.lowerSeed + externalCount,
+    movingSeed: base.movingSeed + externalCount
   };
 }
 
@@ -651,7 +1048,8 @@ function buildMeihuaFrontend(
   mutual: ReturnType<typeof buildMutualHexagram>,
   changed: ReturnType<typeof buildHexagramFromBinary>,
   topicGuidance: TopicGuidance,
-  bodyUseRelation: string
+  bodyUseRelation: string,
+  externalOmenAnalysis: ReturnType<typeof buildMeihuaExternalOmen> | null
 ) {
   return {
     castingSummary: {
@@ -659,7 +1057,8 @@ function buildMeihuaFrontend(
       castingModeLabel: input.castingMode === "time" ? "时间起卦" : "数字起卦",
       numberSource,
       timeInfo,
-      movingLine
+      movingLine,
+      timeMethod: input.timeMethod ?? null
     },
     quickCards: [
       { key: "primary", label: "本卦", value: primary.meta.name, note: primary.meta.judgment },
@@ -672,6 +1071,7 @@ function buildMeihuaFrontend(
       use: `${primary.upper.name}${primary.upper.image}`,
       explanation: topicGuidance.ifAskingResult
     },
+    externalOmen: externalOmenAnalysis,
     topicPanels: [
       { title: "当前重点", body: topicGuidance.currentFocus },
       { title: "适合怎么做", body: topicGuidance.favorableAction },
@@ -685,16 +1085,17 @@ function buildMeihuaFrontend(
 export function castMeihua(input: MeihuaInput) {
   let numberSource: number[];
   let timeInfo: string | null = null;
+  const externalCount = input.externalOmen?.countNumber ?? 0;
 
   if (input.castingMode === "time") {
-    const timeNumbers = getTimeNumbers(input.occurredAt);
+    const timeNumbers = getTimeNumbers(input.occurredAt, input.timeMethod, externalCount);
     timeInfo = timeNumbers.occurredAt;
     numberSource = [timeNumbers.upperSeed, timeNumbers.lowerSeed, timeNumbers.movingSeed];
   } else {
     if (!input.numbers || (input.numbers.length !== 2 && input.numbers.length !== 3)) {
       throw new Error("meihua number casting requires 2 or 3 numbers");
     }
-    numberSource = input.numbers;
+    numberSource = input.numbers.map((item, index) => item + (index === 2 ? externalCount : 0));
   }
 
   const upper = getTrigramByNumber(numberSource[0]);
@@ -709,7 +1110,15 @@ export function castMeihua(input: MeihuaInput) {
   const mutual = buildMutualHexagram(primaryBinary);
   const body = lower;
   const use = upper;
+  const timeContext = buildDivinationTimeContext(timeInfo ?? input.occurredAt);
+  const externalOmenAnalysis = buildMeihuaExternalOmen(input.externalOmen, primary, changed);
   const interpretation = buildMeihuaInterpretation(input.topic, body, use, primary, changed);
+  const topicTemplates = buildMeihuaTopicTemplates(
+    input.topic,
+    interpretation.relation,
+    movingLine,
+    externalOmenAnalysis
+  );
   const topicGuidance = buildTopicGuidance({
     topic: input.topic,
     mode: "meihua",
@@ -724,8 +1133,12 @@ export function castMeihua(input: MeihuaInput) {
     input,
     method: "meihua" as const,
     topicLabel: TOPIC_LABELS[input.topic],
+    timeContext,
     timeInfo,
+    timeMethod: input.timeMethod ?? (input.castingMode === "time" ? "ymdhm" : null),
     numberSource,
+    externalOmenAnalysis,
+    topicTemplates,
     primaryHexagram: {
       name: primary.meta.name,
       palace: primary.meta.palace,
@@ -770,7 +1183,8 @@ export function castMeihua(input: MeihuaInput) {
       mutual,
       changed,
       topicGuidance,
-      interpretation.relation
+      interpretation.relation,
+      externalOmenAnalysis
     )
   };
 }
@@ -794,6 +1208,7 @@ export function buildLiuyaoAiContext(result: ReturnType<typeof castLiuyao>) {
       timelineHint: result.topicGuidance.timelineHint
     },
     hexagramContext: {
+      timeContext: result.timeContext,
       primaryHexagram: {
         name: result.primaryHexagram.name,
         keywords: result.primaryHexagram.keywords,
@@ -808,7 +1223,8 @@ export function buildLiuyaoAiContext(result: ReturnType<typeof castLiuyao>) {
         position: item.position,
         title: item.title,
         topicHint: item.topicHint
-      }))
+      })),
+      advancedPattern: result.advancedPattern
     },
     suggestedQuestions: [
       "这件事现在更适合主动推进还是先观望？",
@@ -840,6 +1256,7 @@ export function buildMeihuaAiContext(result: ReturnType<typeof castMeihua>) {
       timelineHint: result.topicGuidance.timelineHint
     },
     hexagramContext: {
+      timeContext: result.timeContext,
       primaryHexagram: {
         name: result.primaryHexagram.name,
         keywords: result.primaryHexagram.keywords,
@@ -858,7 +1275,9 @@ export function buildMeihuaAiContext(result: ReturnType<typeof castMeihua>) {
         relation: result.bodyUse.relation,
         body: result.bodyUse.body.name,
         use: result.bodyUse.use.name
-      }
+      },
+      externalOmen: result.externalOmenAnalysis,
+      topicTemplates: result.topicTemplates
     },
     suggestedQuestions: [
       "这件事的核心矛盾在我还是在外部环境？",
