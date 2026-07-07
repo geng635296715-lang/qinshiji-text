@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>青筮记 · 青筮建议</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell" data-page="qingzhi">
+      <header class="app-header">
+        <div class="app-title-group">
+          <p class="section-kicker">青筮记 · 个人中心</p>
+          <h1>青筮建议</h1>
+          <p class="muted">
+            结合八字、月令、黄道吉日与当下节奏，生成 7 天建议、方向场景建议、穿戴配色建议，并支持右侧 AI 继续深问。
+          </p>
+        </div>
+
+        <div class="mini-list">
+          <a class="chip" href="/index.html">返回入口</a>
+          <a class="chip" href="/bazi.html">八字页</a>
+          <a class="chip" href="/compatibility.html">合盘页</a>
+        </div>
+      </header>
+
+      <div class="app-grid">
+        <section class="left-column">
+          <div class="form-card">
+            <div class="section-title">
+              <div>
+                <p class="section-kicker">中心切换</p>
+                <h2>登录与档案</h2>
+              </div>
+              <span class="chip" id="active-user-chip">未登录</span>
+            </div>
+
+            <div class="center-grid">
+              <form id="center-login-form" class="result-card">
+                <p class="card-label">登录用户</p>
+                <div class="form-grid">
+                  <div class="field">
+                    <label for="center-user-id">用户标识</label>
+                    <input id="center-user-id" type="text" placeholder="例如：geng635296715-lang" />
+                  </div>
+                  <div class="field">
+                    <label for="center-display-name">显示名称</label>
+                    <input id="center-display-name" type="text" placeholder="例如：青筮记体验用户" />
+                  </div>
+                </div>
+                <div class="button-row">
+                  <button class="primary-btn" type="submit">登录并读取档案</button>
+                  <button class="ghost-btn" id="center-logout" type="button">退出当前用户</button>
+                </div>
+              </form>
+
+              <div class="result-card">
+                <p class="card-label">建议生成</p>
+                <div class="form-grid">
+                  <div class="field">
+                    <label for="advice-scope">建议范围</label>
+                    <select id="advice-scope">
+                      <option value="daily">今日建议</option>
+                      <option value="monthly">本月建议</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="advice-date">基准日期</label>
+                    <input id="advice-date" type="date" />
+                  </div>
+                </div>
+                <div class="button-row">
+                  <button class="primary-btn" id="generate-from-archive" type="button">按当前档案生成</button>
+                </div>
+                <div class="info-note" id="archive-status-note">
+                  登录后如果已存在八字档案，系统会自动读取并生成今日建议。
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-card">
+            <div class="section-title">
+              <div>
+                <p class="section-kicker">八字档案</p>
+                <h2>个人档案保存</h2>
+              </div>
+              <span class="chip">自动联动青筮建议</span>
+            </div>
+
+            <form id="qingzhi-profile-form">
+              <div class="form-grid">
+                <div class="field">
+                  <label for="qingzhi-calendar-type">历法类型</label>
+                  <select id="qingzhi-calendar-type">
+                    <option value="solar">公历</option>
+                    <option value="lunar">农历</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="qingzhi-gender">性别</label>
+                  <select id="qingzhi-gender">
+                    <option value="female">女</option>
+                    <option value="male">男</option>
+                    <option value="other">其他</option>
+                  </select>
+                </div>
+              </div>
+
+              <div id="qingzhi-solar-fields" class="form-grid">
+                <div class="field">
+                  <label for="qingzhi-birth-date">出生日期</label>
+                  <input id="qingzhi-birth-date" type="date" value="1994-10-12" />
+                </div>
+                <div class="field">
+                  <label for="qingzhi-birth-time">出生时间</label>
+                  <input id="qingzhi-birth-time" type="time" value="09:30" />
+                </div>
+              </div>
+
+              <div id="qingzhi-lunar-fields" class="form-grid quad" hidden>
+                <div class="field">
+                  <label for="qingzhi-lunar-year">农历年份</label>
+                  <input id="qingzhi-lunar-year" type="number" value="1994" min="1900" max="2099" />
+                </div>
+                <div class="field">
+                  <label for="qingzhi-lunar-month">农历月份</label>
+                  <select id="qingzhi-lunar-month"></select>
+                </div>
+                <div class="field">
+                  <label for="qingzhi-lunar-day">农历日期</label>
+                  <select id="qingzhi-lunar-day"></select>
+                </div>
+                <div class="field">
+                  <label for="qingzhi-lunar-hour">出生时辰</label>
+                  <select id="qingzhi-lunar-hour"></select>
+                </div>
+              </div>
+
+              <div class="form-grid">
+                <div class="field">
+                  <label for="qingzhi-birth-place">出生地</label>
+                  <input id="qingzhi-birth-place" type="text" value="Shanghai" />
+                </div>
+              </div>
+
+              <div class="button-row">
+                <button class="primary-btn" type="submit">保存八字档案</button>
+                <button class="ghost-btn" id="qingzhi-refresh-lunar" type="button">刷新农历选项</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="form-card">
+            <div class="section-title">
+              <div>
+                <p class="section-kicker">提醒设置</p>
+                <h2>每日推送 / 每月提醒</h2>
+              </div>
+              <span class="chip">后端配置已预留</span>
+            </div>
+
+            <form id="qingzhi-reminder-form">
+              <div class="three-grid">
+                <div class="result-card">
+                  <p class="card-label">每日提醒</p>
+                  <div class="field">
+                    <label><input id="daily-enabled" type="checkbox" /> 开启每日提醒</label>
+                  </div>
+                  <div class="field">
+                    <label for="daily-time">提醒时间</label>
+                    <input id="daily-time" type="time" value="08:30" />
+                  </div>
+                </div>
+
+                <div class="result-card">
+                  <p class="card-label">每月提醒</p>
+                  <div class="field">
+                    <label><input id="monthly-enabled" type="checkbox" /> 开启每月提醒</label>
+                  </div>
+                  <div class="field">
+                    <label for="monthly-day">提醒日期</label>
+                    <input id="monthly-day" type="number" min="1" max="28" value="1" />
+                  </div>
+                </div>
+
+                <div class="result-card">
+                  <p class="card-label">提醒通道</p>
+                  <div class="field">
+                    <label for="reminder-channel">当前通道</label>
+                    <select id="reminder-channel">
+                      <option value="site">站内提醒</option>
+                      <option value="email">邮件预留</option>
+                      <option value="sms">短信预留</option>
+                    </select>
+                  </div>
+                  <div class="info-note" id="reminder-preview-note">提醒配置保存后，后续接推送服务时可直接复用。</div>
+                </div>
+              </div>
+
+              <div class="button-row">
+                <button class="primary-btn" type="submit">保存提醒配置</button>
+              </div>
+            </form>
+          </div>
+
+          <div id="qingzhi-result" class="panel-card">
+            <div class="empty-state">
+              登录并保存八字档案后，这里会自动生成 7 天日历、吉日分类、月令走势、方向场景建议、穿戴建议和专项提醒。
+            </div>
+          </div>
+        </section>
+
+        <aside class="right-column">
+          <div class="ai-card sticky-card">
+            <div class="section-title">
+              <div>
+                <p class="ai-kicker">青筮记 · DeepSeek</p>
+                <h2>青筮建议 AI 咨询栏</h2>
+              </div>
+              <span class="chip">读取当前建议结果</span>
+            </div>
+
+            <div id="qingzhi-ai-chat" class="chat-list">
+              <div class="chat-bubble assistant">
+                生成建议后，可以继续追问哪天适合签约、见人、谈感情、做决断，或者当天穿什么更顺势。
+              </div>
+            </div>
+
+            <div class="suggestion-strip" id="qingzhi-ai-suggestions"></div>
+
+            <div class="ai-input">
+              <textarea
+                id="qingzhi-ai-question"
+                placeholder="例如：未来 7 天里，哪一天最适合推进事业合作？为什么？"
+              ></textarea>
+              <button class="primary-btn" id="qingzhi-ai-send" type="button">发送给 AI 命理师</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <script src="/qingzhi.js" type="module"></script>
+  </body>
+</html>
