@@ -9,6 +9,8 @@ const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(3001),
   OPENAI_API_KEY: z.string().optional(),
   DEEPSEEK_API_KEY: z.string().optional(),
+  DEEPSEEK_BASE_URL: z.string().url().default("https://api.deepseek.com"),
+  DEEPSEEK_MODEL: z.string().default("deepseek-v4-flash"),
   DATABASE_URL: z.string().optional()
 });
 

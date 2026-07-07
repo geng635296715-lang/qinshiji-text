@@ -147,6 +147,64 @@ export function buildBaziPageView(result: BaziAnalysisResult) {
   };
 }
 
+export function buildBaziAiContext(result: BaziAnalysisResult) {
+  return {
+    module: "bazi",
+    contextVersion: "v1",
+    summaryCard: {
+      solar: result.calendar.solar,
+      lunar: result.calendar.lunar,
+      zodiac: result.calendar.zodiac,
+      dayMaster: result.dayMaster.label,
+      strength: result.strengthAnalysis.levelLabel,
+      favorableElements: result.strengthAnalysis.favorableElements.map((item) => item.name),
+      unfavorableElements: result.strengthAnalysis.unfavorableElements.map((item) => item.name)
+    },
+    chartContext: {
+      pillars: result.pillars.map((pillar) => ({
+        name: pillar.name,
+        ganzhi: pillar.ganzhi,
+        stem: pillar.heavenlyStem.value,
+        branch: pillar.earthlyBranch.value,
+        hiddenStems: pillar.hiddenStems.map((item) => item.value),
+        naYin: pillar.naYin
+      })),
+      chartMeta: result.chartMeta
+    },
+    analysisContext: {
+      reasoning: result.strengthAnalysis.reasoning,
+      supportScore: result.strengthAnalysis.supportScore,
+      drainScore: result.strengthAnalysis.drainScore,
+      delta: result.strengthAnalysis.delta,
+      favorableUsage: result.overview.favorableUsage,
+      displayNote: result.overview.displayNote,
+      wuxingBalanceHint: result.overview.wuxingBalanceHint
+    },
+    flowContext: result.flowAnalysis.supported
+      ? {
+          currentDaYun: result.flowAnalysis.currentDaYun,
+          currentLiuNian: result.flowAnalysis.currentLiuNian,
+          liuNianTimeline: result.flowAnalysis.liuNianTimeline,
+          liuYue: result.flowAnalysis.liuYue
+        }
+      : result.flowAnalysis,
+    premiumContext: result.premiumAnalysis.unlocked
+      ? result.premiumAnalysis.sections
+      : {
+          unlocked: false,
+          preview: result.premiumAnalysis.preview
+        },
+    suggestedQuestions: [
+      "结合我的八字，我最近的事业推进重点应该放在哪里？",
+      "如果我要处理感情问题，当前更适合主动还是保守？",
+      "请结合流年流月，告诉我未来一段时间最需要注意什么？",
+      "我的喜用神在现实里更适合落到什么行动和环境上？"
+    ],
+    systemPrompt:
+      "你是青筮记的 AI 八字命理师。请严格基于当前八字盘、旺衰、喜忌、流年流月和专项解读结果回答。优先说明为什么，再给具体建议；不要脱离当前盘面空泛发挥。"
+  };
+}
+
 export function buildCompatibilityPageView(result: BaziCompatibilityResult) {
   if (!result.unlocked) {
     return {
@@ -262,6 +320,85 @@ export function buildCompatibilityPageView(result: BaziCompatibilityResult) {
             ]
           }
         ]
+      }
+    ]
+  };
+}
+
+export function buildCompatibilityAiContext(result: BaziCompatibilityResult) {
+  if (!result.unlocked) {
+    return {
+      module: "bazi-compatibility",
+      contextVersion: "v1",
+      locked: true,
+      preview: result.preview,
+      systemPrompt:
+        "当前是八字合盘锁定状态。你只能基于已解锁的预览信息回答，不要虚构未解锁的详细合盘结论。"
+    };
+  }
+
+  return {
+    module: "bazi-compatibility",
+    contextVersion: "v1",
+    relationType: result.relationType,
+    relationLabel: result.relationLabel,
+    pairSummary: result.pairSummary,
+    people: {
+      personA: {
+        solar: result.personA.calendar.solar,
+        lunar: result.personA.calendar.lunar,
+        dayMaster: result.personA.dayMaster.label,
+        strength: result.personA.strengthAnalysis.levelLabel
+      },
+      personB: {
+        solar: result.personB.calendar.solar,
+        lunar: result.personB.calendar.lunar,
+        dayMaster: result.personB.dayMaster.label,
+        strength: result.personB.strengthAnalysis.levelLabel
+      }
+    },
+    synergy: result.synergy,
+    charts: result.compatibilityCharts,
+    premiumContext: result.premiumCompatibilityAnalysis,
+    suggestedQuestions: [
+      "这段关系里最需要注意的冲突点是什么？",
+      "如果我们是共事关系，怎么分工会更顺？",
+      "如果是亲密关系，当前更适合推进还是先磨合？",
+      "请告诉我双方各自旺什么、弱什么，以及现实里要怎么配合。"
+    ],
+    systemPrompt:
+      "你是青筮记的 AI 合盘命理师。请严格基于当前合盘结果、图表对照、旺衰喜忌和关系专项解读回答。优先说明双方哪里合、哪里耗、原因是什么，以及如何相处或共事。"
+  };
+}
+
+export function buildBaziAiView(context: ReturnType<typeof buildBaziAiContext> | ReturnType<typeof buildCompatibilityAiContext>) {
+  return {
+    panel: {
+      module: "bazi-ai",
+      title: "AI 命理咨询",
+      subtitle: "基于当前八字 / 合盘结果继续追问"
+    },
+    sections: [
+      {
+        type: "summary-card",
+        title: "上下文摘要",
+        data: "summaryCard" in context ? context.summaryCard : context.pairSummary
+      },
+      {
+        type: "analysis-context",
+        title: "命理分析依据",
+        data:
+          "analysisContext" in context
+            ? context.analysisContext
+            : {
+                synergy: context.synergy,
+                charts: context.charts
+              }
+      },
+      {
+        type: "suggested-questions",
+        title: "建议追问",
+        data: context.suggestedQuestions ?? []
       }
     ]
   };

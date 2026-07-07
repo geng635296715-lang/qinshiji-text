@@ -1,6 +1,12 @@
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
-import { buildBaziPageView, buildCompatibilityPageView } from "./presenter.js";
+import {
+  buildBaziAiContext,
+  buildBaziAiView,
+  buildBaziPageView,
+  buildCompatibilityAiContext,
+  buildCompatibilityPageView
+} from "./presenter.js";
 import { analyzeBazi, analyzeBaziCompatibility } from "./service.js";
 
 const baziInputSchema = z.object({
@@ -122,6 +128,58 @@ export async function registerBaziRoutes(app: FastifyInstance) {
     } catch (error) {
       return reply.status(400).send({
         message: error instanceof Error ? error.message : "Failed to build compatibility page view"
+      });
+    }
+  });
+
+  app.post("/api/v1/bazi/ai-context", async (request, reply) => {
+    const parsed = baziInputSchema.safeParse(request.body);
+
+    if (!parsed.success) {
+      return reply.status(400).send({
+        message: "Invalid bazi input",
+        issues: parsed.error.issues
+      });
+    }
+
+    try {
+      const result = analyzeBazi(parsed.data);
+      const aiContext = buildBaziAiContext(result);
+
+      return {
+        result,
+        aiContext,
+        aiView: buildBaziAiView(aiContext)
+      };
+    } catch (error) {
+      return reply.status(400).send({
+        message: error instanceof Error ? error.message : "Failed to build bazi AI context"
+      });
+    }
+  });
+
+  app.post("/api/v1/bazi/compatibility-ai-context", async (request, reply) => {
+    const parsed = compatibilityInputSchema.safeParse(request.body);
+
+    if (!parsed.success) {
+      return reply.status(400).send({
+        message: "Invalid bazi compatibility input",
+        issues: parsed.error.issues
+      });
+    }
+
+    try {
+      const result = analyzeBaziCompatibility(parsed.data);
+      const aiContext = buildCompatibilityAiContext(result);
+
+      return {
+        result,
+        aiContext,
+        aiView: buildBaziAiView(aiContext)
+      };
+    } catch (error) {
+      return reply.status(400).send({
+        message: error instanceof Error ? error.message : "Failed to build compatibility AI context"
       });
     }
   });
