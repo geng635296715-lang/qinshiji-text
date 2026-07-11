@@ -1,0 +1,129 @@
+.divination-page .summary-grid {
+  margin-top: 18px;
+}
+
+.divination-page .result-section {
+  display: grid;
+  gap: 16px;
+}
+
+.divination-page .result-section + .result-section {
+  margin-top: 18px;
+}
+
+.divination-page .result-section-body {
+  display: grid;
+  gap: 14px;
+}
+
+.divination-page .line-select-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.divination-page .field.is-tight label {
+  margin-bottom: 4px;
+}
+
+.divination-page .result-card-grid,
+.divination-page .result-chip-grid,
+.divination-page .result-detail-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.divination-page .result-card-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.divination-page .result-chip-grid {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.divination-page .result-detail-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.divination-page .result-mini-card {
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(229, 174, 65, 0.16);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.divination-page .result-mini-card strong {
+  display: block;
+  margin-bottom: 8px;
+  font-family: var(--font-display);
+  font-size: 18px;
+}
+
+.divination-page .result-list {
+  display: grid;
+  gap: 10px;
+}
+
+.divination-page .result-list-item {
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(229, 174, 65, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.divination-page .result-table {
+  width: 100%;
+  border-collapse: collapse;
+  overflow: hidden;
+}
+
+.divination-page .result-table th,
+.divination-page .result-table td {
+  padding: 10px 10px;
+  border-bottom: 1px solid rgba(229, 174, 65, 0.12);
+  text-align: left;
+  vertical-align: top;
+}
+
+.divination-page .result-table th {
+  color: #f3c96d;
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+
+.divination-page .result-pair {
+  display: grid;
+  gap: 12px;
+}
+
+.divination-page .result-pair > div {
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(229, 174, 65, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.divination-page .result-pair h4,
+.divination-page .result-pair strong {
+  margin: 0 0 8px;
+}
+
+.divination-page .result-raw {
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.8;
+}
+
+@media (max-width: 1180px) {
+  .divination-page .line-select-grid,
+  .divination-page .result-card-grid,
+  .divination-page .result-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .divination-page .result-chip-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}

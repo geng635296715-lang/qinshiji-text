@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>青筮记 · 个人中心</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/dark-theme.css" />
+  </head>
+  <body class="qs-dark-page">
+    <div class="app-shell">
+      <header class="app-header">
+        <div class="app-title-group">
+          <p class="section-kicker">青筮记 · 用户中心</p>
+          <h1>个人中心</h1>
+          <p class="muted">统一查看账号信息、八字档案、青筮建议摘要、历史起卦记录、AI 咨询记录，并维护个人提醒配置。</p>
+        </div>
+        <div class="mini-list">
+          <a class="chip" href="/home.html">返回首页</a>
+          <a class="chip" href="/auth.html">登录页</a>
+          <a class="chip" href="/qingzhi.html">青筮建议</a>
+        </div>
+      </header>
+
+      <div class="left-column">
+        <section class="panel-card" id="account">
+          <div class="section-title">
+            <div>
+              <p class="section-kicker">&#25105;&#30340;&#36134;&#21495;</p>
+              <h2>&#36134;&#21495;&#20449;&#24687;</h2>
+            </div>
+            <span class="chip">&#22836;&#20687;&#19982;&#26165;&#31216;&#20837;&#21475;&#24050;&#25509;&#20837;</span>
+          </div>
+          <div class="account-profile-card">
+            <div class="account-profile-avatar" id="account-avatar">&#38738;</div>
+            <div class="account-profile-copy">
+              <h3 id="account-display-name">&#21152;&#36733;&#20013;</h3>
+              <p class="muted" id="account-username">@username</p>
+              <p class="muted" id="account-email">email@example.com</p>
+              <div class="info-note">&#24403;&#21069;&#22836;&#20687;&#20808;&#37319;&#29992;&#26165;&#31216;&#39318;&#23383;&#23637;&#31034;&#65292;&#21518;&#32493;&#21487;&#32487;&#32493;&#25193;&#23637;&#20026;&#19978;&#20256;&#22836;&#20687;&#12289;&#20462;&#25913;&#26165;&#31216;&#12289;&#20010;&#24615;&#31614;&#21517;&#31561;&#36134;&#21495;&#35774;&#32622;&#12290;</div>
+            </div>
+          </div>
+        </section>
+        <section class="summary-grid profile-summary-grid" id="account-summary">
+          <div class="result-card">
+            <p class="card-label">账号</p>
+            <div class="display-value">加载中</div>
+          </div>
+          <div class="result-card">
+            <p class="card-label">八字档案</p>
+            <div class="display-value">--</div>
+          </div>
+          <div class="result-card">
+            <p class="card-label">历史记录</p>
+            <div class="display-value">--</div>
+          </div>
+          <div class="result-card">
+            <p class="card-label">最近青筮建议</p>
+            <div class="display-value">--</div>
+          </div>
+        </section>
+
+        <section class="panel-card">
+          <div class="section-title">
+            <div>
+              <p class="section-kicker">青筮建议</p>
+              <h2>最近一次建议摘要</h2>
+            </div>
+            <a class="chip" href="/qingzhi.html">进入青筮建议页</a>
+          </div>
+          <div id="latest-qingzhi-summary"></div>
+        </section>
+
+        <section class="form-card">
+          <div class="section-title">
+            <div>
+              <p class="section-kicker">八字档案</p>
+              <h2>保存 / 更新档案</h2>
+            </div>
+            <span class="chip">保存后自动同步最新命盘快照</span>
+          </div>
+          <form id="profile-bazi-form">
+            <div class="form-grid">
+              <div class="field">
+                <label for="profile-calendar-type">历法类型</label>
+                <select id="profile-calendar-type">
+                  <option value="solar">公历</option>
+                  <option value="lunar">农历</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="profile-gender">性别</label>
+                <select id="profile-gender">
+                  <option value="female">女</option>
+                  <option value="male">男</option>
+                  <option value="other">其他</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-grid">
+              <div class="field">
+                <label for="profile-birth-date">出生日期</label>
+                <input id="profile-birth-date" type="date" />
+              </div>
+              <div class="field">
+                <label for="profile-birth-time">出生时间</label>
+                <input id="profile-birth-time" type="time" />
+              </div>
+            </div>
+            <div class="form-grid">
+              <div class="field">
+                <label for="profile-birth-place">出生地</label>
+                <input id="profile-birth-place" type="text" placeholder="例如 Shanghai" />
+              </div>
+              <div class="field">
+                <label for="profile-focus-year">重点年份</label>
+                <input id="profile-focus-year" type="number" value="2026" />
+              </div>
+            </div>
+            <div class="button-row">
+              <button class="primary-btn" type="submit">保存八字档案</button>
+            </div>
+            <div id="profile-bazi-message" class="info-note">保存后会同步刷新个人中心中的最新八字档案。</div>
+          </form>
+        </section>
+
+        <section class="form-card">
+          <div class="section-title">
+            <div>
+              <p class="section-kicker">提醒配置</p>
+              <h2>每日 / 每月提醒</h2>
+            </div>
+            <span class="chip">已接数据库</span>
+          </div>
+          <form id="reminder-form">
+            <div class="three-grid">
+              <div class="result-card">
+                <p class="card-label">每日提醒</p>
+                <div class="field">
+                  <label><input id="profile-daily-enabled" type="checkbox" /> 开启每日提醒</label>
+                </div>
+                <div class="field">
+                  <label for="profile-daily-time">提醒时间</label>
+                  <input id="profile-daily-time" type="time" value="08:30" />
+                </div>
+              </div>
+              <div class="result-card">
+                <p class="card-label">每月提醒</p>
+                <div class="field">
+                  <label><input id="profile-monthly-enabled" type="checkbox" /> 开启每月提醒</label>
+                </div>
+                <div class="field">
+                  <label for="profile-monthly-day">提醒日期</label>
+                  <input id="profile-monthly-day" type="number" min="1" max="28" value="1" />
+                </div>
+              </div>
+              <div class="result-card">
+                <p class="card-label">提醒通道</p>
+                <div class="field">
+                  <label for="profile-reminder-channel">当前通道</label>
+                  <select id="profile-reminder-channel">
+                    <option value="site">站内提醒</option>
+                    <option value="email">邮件预留</option>
+                    <option value="sms">短信预留</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="button-row">
+              <button class="primary-btn" type="submit">保存提醒设置</button>
+            </div>
+            <div id="reminder-message" class="info-note">提醒配置会保存到当前登录用户的数据库记录中。</div>
+          </form>
+        </section>
+
+        <section class="panel-card">
+          <div class="section-title">
+            <div>
+              <p class="section-kicker">记录中心</p>
+              <h2>历史起卦记录</h2>
+            </div>
+            <span class="chip" id="divination-count-chip">0 条</span>
+          </div>
+          <div id="divination-history" class="list-stack"></div>
+        </section>
+
+        <section class="panel-card">
+          <div class="section-title">
+            <div>
+              <p class="section-kicker">AI 记录</p>
+              <h2>AI 咨询记录</h2>
+            </div>
+            <span class="chip" id="ai-count-chip">0 条</span>
+          </div>
+          <div id="ai-history" class="list-stack"></div>
+        </section>
+      </div>
+    </div>
+
+    <script src="/account-menu.js" type="module"></script>
+    <script src="/profile.js" type="module"></script>
+  </body>
+</html>

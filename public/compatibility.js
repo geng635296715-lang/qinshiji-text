@@ -1,3 +1,5 @@
+import { authFetch } from "/session.js";
+
 const form = document.querySelector("#compatibility-form");
 const resultContainer = document.querySelector("#compatibility-result");
 const aiChat = document.querySelector("#compatibility-ai-chat");
@@ -43,7 +45,7 @@ async function onSubmit(event) {
   };
 
   try {
-    const response = await fetch("/api/v1/bazi/compatibility-view", {
+    const response = await authFetch("/api/v1/bazi/compatibility-view", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
@@ -55,7 +57,7 @@ async function onSubmit(event) {
       return;
     }
 
-    const aiRes = await fetch("/api/v1/bazi/compatibility-ai-context", {
+    const aiRes = await authFetch("/api/v1/bazi/compatibility-ai-context", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
@@ -362,7 +364,7 @@ async function onAiAsk() {
   aiQuestion.value = "";
 
   try {
-    const response = await fetch("/api/v1/ai/consult", {
+    const response = await authFetch("/api/v1/ai/consult", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

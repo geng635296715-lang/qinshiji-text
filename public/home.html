@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>青筮记</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Noto+Serif+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./home.css">
+</head>
+<body class="home-body">
+  <div class="site-canvas">
+    <div class="layer layer-video" aria-hidden="true">
+      <video class="bg-video" autoplay muted loop playsinline preload="auto">
+        <source src="./assets/qing-shiji-loop.mp4" type="video/mp4">
+      </video>
+    </div>
+    <div class="layer layer-bg"></div>
+    <div class="layer layer-vignette"></div>
+
+    <a class="brand-lockup layer" href="/home.html" aria-label="青筮记首页">
+      <img class="brand-app-logo" src="./assets/applogo.png" alt="">
+      <span class="brand-copy">
+        <img class="brand-word-logo" src="./assets/logo-horizontal.png" alt="青筮记">
+        <span class="brand-slogan">青衣筮卜，易断天机</span>
+      </span>
+    </a>
+
+    <header class="site-header layer">
+      <a class="nav-link active" href="/home.html">首页</a>
+      <a class="nav-link" href="/divination.html">占卜</a>
+      <a class="nav-link" href="/bazi.html">八字</a>
+      <a class="nav-link" href="/huangdao.html">青筮黄道</a>
+      <a class="nav-link" href="/courses.html">课程</a>
+      <a class="nav-link" href="/profile.html">记录</a>
+      <a class="nav-link" href="/about.html">关于</a>
+    </header>
+
+    <div class="login-button layer home-login-entry rebuilt-home-account" data-account-entry></div>
+
+    <main class="home-stage layer">
+      <section class="hero-copy panel-layer">
+        <h1 class="hero-title">青衣筮卜&nbsp;&nbsp;易断天机<br>自建青筮AI数据库复合解读</h1>
+        <span class="hero-rule"></span>
+        <p class="hero-subtitle">传承千年智慧，结合AI之力，为你指点迷津</p>
+        <a class="start-button" href="/bazi.html">
+          <span>开始占卜</span>
+          <span class="arrow" aria-hidden="true">→</span>
+        </a>
+      </section>
+
+      <section class="center-sigil panel-layer" aria-label="青筮记标识">
+        <img class="sigil-astrolabe" src="./assets/astrolabe-transparent.png" alt="">
+        <img class="sigil-logo" src="./assets/logo-vertical.png" alt="青筮记">
+        <p class="sigil-text">QING<br>SHI<br>JI</p>
+      </section>
+
+      <section class="ai-card panel-layer">
+        <div class="ai-card-orb" aria-hidden="true"></div>
+        <label class="ask-box">
+          <input type="text" placeholder="请输入你想问的问题...">
+          <button type="button" aria-label="发送">
+            <span class="voice-icon" aria-hidden="true">
+              <span></span><span></span><span></span><span></span><span></span>
+            </span>
+          </button>
+        </label>
+        <div class="ai-copy">
+          <p class="ai-label">青筮 AI</p>
+          <h2 class="ai-title">今天想解读什么？</h2>
+          <p class="ai-intro">关于运势、感情、事业、流年，<br>都可以直接问我。</p>
+        </div>
+      </section>
+
+      <section class="service-cards panel-layer" aria-label="服务入口">
+        <article class="service-card card-bazi">
+          <a class="card-emblem-link" href="/bazi.html" aria-label="进入命理">
+            <div class="card-emblem">
+              <img src="./assets/mingli-compass.svg" alt="命理图标">
+              <span>MINGLI</span>
+            </div>
+          </a>
+          <div class="card-copy">
+            <h3>命理</h3>
+            <p>解析生辰命盘<br>洞察运势格局与人生方向</p>
+          </div>
+        </article>
+
+        <article class="service-card card-liuyao">
+          <a class="card-emblem-link" href="/divination.html" aria-label="进入占卜">
+            <div class="card-emblem">
+              <img src="./assets/zhanbu-trigram.svg" alt="占卜图标">
+              <span>ZHANBU</span>
+            </div>
+          </a>
+          <div class="card-copy">
+            <h3>占卜</h3>
+            <p>六爻梅花问卜<br>辅助决策与时机判断</p>
+          </div>
+        </article>
+
+        <article class="service-card card-meihua">
+          <a class="card-emblem-link" href="/huangdao.html" aria-label="进入黄历">
+            <div class="card-emblem">
+              <img src="./assets/huangli-calendar.svg" alt="黄历图标">
+              <span>HUANGLI</span>
+            </div>
+          </a>
+          <div class="card-copy">
+            <h3>黄历</h3>
+            <p>宜忌择日参考<br>结合八字专属你的日常指南</p>
+          </div>
+        </article>
+      </section>
+
+      <figure class="wisdom-quote panel-layer">
+        <blockquote>“不知命，无以为君子也；不知礼，无以立也；不知言，无以知人也。”</blockquote>
+        <figcaption>——《论语 · 尧曰》</figcaption>
+      </figure>
+    </main>
+  </div>
+  <script type="module" src="./home-ai-chat-orb.js"></script>
+  <script type="module" src="/account-menu.js"></script>
+</body>
+</html>

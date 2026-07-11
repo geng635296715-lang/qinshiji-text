@@ -1,0 +1,350 @@
+.divination-split-body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 50% 20%, rgba(231, 183, 91, 0.08), transparent 26%),
+    linear-gradient(180deg, #050403 0%, #090705 100%);
+}
+
+.divination-split-canvas {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 50% 18%, rgba(255, 214, 127, 0.05), transparent 18%),
+    linear-gradient(180deg, rgba(7, 6, 5, 0.24), rgba(5, 4, 3, 0.9));
+}
+
+.divination-split-grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 12% 22%, rgba(255, 255, 255, 0.12) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 78% 18%, rgba(231, 183, 91, 0.2) 0 1.2px, transparent 1.8px),
+    radial-gradient(circle at 66% 72%, rgba(255, 255, 255, 0.08) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 26% 80%, rgba(231, 183, 91, 0.16) 0 1px, transparent 1.4px);
+  opacity: 0.26;
+}
+
+.divination-split-stage {
+  position: absolute;
+  inset: 100px 0 0;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.split-option {
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow: hidden;
+  transition: filter 260ms ease, transform 320ms ease;
+}
+
+.split-left {
+  clip-path: polygon(0 0, 61% 0, 51% 100%, 0 100%);
+}
+
+.split-right {
+  clip-path: polygon(59% 0, 100% 0, 100% 100%, 49% 100%);
+}
+
+.split-panel-bg,
+.split-panel-shade,
+.split-panel-rings {
+  position: absolute;
+  inset: 0;
+  transition: transform 420ms ease, filter 320ms ease, opacity 260ms ease;
+}
+
+.split-panel-bg {
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.split-left .split-panel-bg {
+  background-image:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.22)),
+    url("/assets/divination-split-left-bg-v2.png");
+  background-position: left center;
+}
+
+.split-right .split-panel-bg {
+  background-image:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.28)),
+    url("/assets/divination-split-right-bg-v2.png");
+  background-position: right center;
+}
+
+.split-panel-shade {
+  background:
+    radial-gradient(circle at center, rgba(0, 0, 0, 0.01), rgba(0, 0, 0, 0.4) 76%),
+    linear-gradient(180deg, rgba(5, 5, 5, 0.02), rgba(5, 5, 5, 0.12));
+}
+
+.split-panel-rings {
+  opacity: 0.08;
+  background:
+    radial-gradient(circle at 50% 50%, transparent 0 20%, rgba(231, 183, 91, 0.2) 20.4% 20.7%, transparent 21% 32%, rgba(231, 183, 91, 0.14) 32.4% 32.6%, transparent 33%),
+    radial-gradient(circle at 50% 50%, transparent 0 42%, rgba(231, 183, 91, 0.12) 42.3% 42.5%, transparent 43%);
+  mix-blend-mode: screen;
+}
+
+.split-divider {
+  position: absolute;
+  left: 50%;
+  top: -4%;
+  width: 220px;
+  height: 110%;
+  transform: translateX(-50%) rotate(12deg);
+  z-index: 4;
+  pointer-events: none;
+  background: url("/assets/divination-split-divider-v2.png") center / contain no-repeat;
+  opacity: 0.96;
+}
+
+.split-divider::before,
+.split-divider::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.split-divider::before {
+  left: 50%;
+  width: 2px;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, rgba(255, 214, 127, 0), rgba(255, 203, 96, 0.95) 18%, rgba(255, 219, 133, 0.98) 50%, rgba(255, 196, 67, 0.86) 82%, rgba(255, 214, 127, 0));
+  box-shadow:
+    0 0 8px rgba(231, 183, 91, 0.85),
+    0 0 18px rgba(231, 183, 91, 0.42);
+}
+
+.split-divider::after {
+  background:
+    radial-gradient(circle at 48% 16%, rgba(255, 215, 128, 0.42) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 56% 28%, rgba(255, 195, 79, 0.38) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 44% 42%, rgba(255, 215, 128, 0.36) 0 1px, transparent 2px),
+    radial-gradient(circle at 58% 64%, rgba(255, 195, 79, 0.3) 0 1.2px, transparent 2px),
+    radial-gradient(circle at 45% 84%, rgba(255, 215, 128, 0.24) 0 1.2px, transparent 2px);
+  opacity: 0.72;
+}
+
+.split-panel-copy {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.split-panel-copy-left {
+  padding: 36px 0 0 0;
+}
+
+.split-panel-copy-right {
+  padding: 78px 86px 0 0;
+}
+
+.split-calligraphy {
+  position: absolute;
+  display: block;
+  max-width: none;
+  mix-blend-mode: screen;
+  filter: drop-shadow(0 22px 34px rgba(0, 0, 0, 0.26));
+  transition: transform 420ms ease, opacity 260ms ease, filter 320ms ease;
+}
+
+.split-calligraphy-left {
+  left: 214px;
+  top: 22px;
+  width: 540px;
+}
+
+.split-calligraphy-right {
+  right: 212px;
+  bottom: 92px;
+  width: 420px;
+}
+
+.split-copy-block {
+  position: absolute;
+  left: 414px;
+  top: 305px;
+  color: rgba(228, 221, 212, 0.92);
+  text-shadow: 0 6px 18px rgba(0, 0, 0, 0.38);
+}
+
+.split-copy-block-right {
+  left: auto;
+  right: 408px;
+  top: 210px;
+  text-align: left;
+}
+
+.split-kicker {
+  margin: 0;
+  font-family: var(--serif-cn);
+  font-size: 34px;
+  color: #d9d0c4;
+  letter-spacing: 0.14em;
+}
+
+.split-kicker-right {
+  font-size: 56px;
+  letter-spacing: 0.08em;
+}
+
+.split-intro,
+.split-description {
+  margin: 0;
+  font-size: 18px;
+  line-height: 2.05;
+  color: rgba(219, 210, 200, 0.88);
+}
+
+.split-description {
+  margin-top: 18px;
+}
+
+.split-rule {
+  display: block;
+  width: 34px;
+  height: 2px;
+  margin: 18px 0 16px;
+  background: linear-gradient(90deg, rgba(231, 183, 91, 0.12), rgba(245, 215, 133, 1), rgba(231, 183, 91, 0.12));
+}
+
+.divination-split-stage:has(.split-left:hover) .split-left .split-panel-bg,
+.divination-split-stage:has(.split-left:focus-visible) .split-left .split-panel-bg {
+  transform: scale(1.055);
+  filter: brightness(1.05) saturate(1.06);
+}
+
+.divination-split-stage:has(.split-left:hover) .split-left .split-calligraphy,
+.divination-split-stage:has(.split-left:focus-visible) .split-left .split-calligraphy {
+  transform: scale(1.04);
+  filter: drop-shadow(0 22px 34px rgba(0, 0, 0, 0.24)) drop-shadow(0 0 16px rgba(255, 255, 255, 0.08));
+}
+
+.divination-split-stage:has(.split-left:hover) .split-right,
+.divination-split-stage:has(.split-left:focus-visible) .split-right {
+  filter: brightness(0.52) saturate(0.72);
+}
+
+.divination-split-stage:has(.split-right:hover) .split-right .split-panel-bg,
+.divination-split-stage:has(.split-right:focus-visible) .split-right .split-panel-bg {
+  transform: scale(1.055);
+  filter: brightness(1.05) saturate(1.06);
+}
+
+.divination-split-stage:has(.split-right:hover) .split-right .split-calligraphy,
+.divination-split-stage:has(.split-right:focus-visible) .split-right .split-calligraphy {
+  transform: scale(1.04);
+  filter: drop-shadow(0 22px 34px rgba(0, 0, 0, 0.24)) drop-shadow(0 0 16px rgba(255, 255, 255, 0.08));
+}
+
+.divination-split-stage:has(.split-right:hover) .split-left,
+.divination-split-stage:has(.split-right:focus-visible) .split-left {
+  filter: brightness(0.5) saturate(0.72);
+}
+
+.split-option:focus-visible {
+  outline: none;
+}
+
+.split-option:focus-visible .split-panel-shade {
+  box-shadow: inset 0 0 0 2px rgba(245, 215, 133, 0.7);
+}
+
+@media (max-width: 1180px) {
+  .divination-split-stage {
+    inset: 92px 0 0;
+  }
+
+  .split-calligraphy-left {
+    left: 128px;
+    width: 470px;
+  }
+
+  .split-calligraphy-right {
+    right: 138px;
+    width: 360px;
+  }
+
+  .split-copy-block {
+    left: 300px;
+    top: 286px;
+  }
+
+  .split-copy-block-right {
+    right: 276px;
+    top: 196px;
+  }
+}
+
+@media (max-width: 900px) {
+  .site-canvas.divination-split-canvas {
+    min-height: auto;
+  }
+
+  .divination-split-stage {
+    position: relative;
+    inset: auto;
+    display: grid;
+    min-height: calc(100vh - 110px);
+    padding-top: 96px;
+  }
+
+  .split-option,
+  .split-left,
+  .split-right {
+    position: relative;
+    inset: auto;
+    clip-path: none;
+    min-height: 420px;
+    filter: none !important;
+  }
+
+  .split-divider {
+    left: 50%;
+    top: 50%;
+    width: 82%;
+    height: 120px;
+    transform: translate(-50%, -50%) rotate(-6deg);
+  }
+
+  .split-calligraphy-left,
+  .split-calligraphy-right {
+    left: 50%;
+    right: auto;
+    width: min(72vw, 420px);
+    transform: translateX(-50%);
+  }
+
+  .split-calligraphy-left {
+    top: 28px;
+  }
+
+  .split-calligraphy-right {
+    bottom: 28px;
+  }
+
+  .split-copy-block,
+  .split-copy-block-right {
+    left: 50%;
+    right: auto;
+    top: auto;
+    bottom: 48px;
+    width: min(78vw, 420px);
+    transform: translateX(-50%);
+    text-align: center;
+  }
+
+  .split-copy-block-right {
+    bottom: auto;
+    top: 42px;
+  }
+
+  .split-rule {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>青筮记 · 青筮黄道</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/dark-theme.css" />
+    <link rel="stylesheet" href="/bazi-page.css" />
+  </head>
+  <body class="qs-dark-page bazi-cosmos-page">
+    <div class="bazi-page-shell" data-page="huangdao">
+      <header class="bazi-topbar">
+        <a class="bazi-topbar-brand" href="/home.html" aria-label="返回青筮记首页">
+          <img class="bazi-topbar-app-logo" src="/assets/applogo.png" alt="" />
+          <img class="bazi-topbar-word-logo" src="/assets/logo-horizontal.png" alt="青筮记" />
+        </a>
+
+        <nav class="bazi-topbar-nav" aria-label="页面导航">
+          <a href="/home.html">首页</a>
+          <a href="/divination.html">占卜</a>
+          <a href="/bazi.html">八字</a>
+          <a class="is-active" href="/huangdao.html">青筮黄道</a>
+          <a href="/courses.html">课程</a>
+          <a href="/profile.html">记录</a>
+          <a href="/about.html">关于</a>
+        </nav>
+
+        <div class="bazi-topbar-account" data-account-entry></div>
+      </header>
+
+      <main class="portal-shell" style="padding-top: 18px;">
+        <section class="portal-hero">
+          <p class="portal-kicker">青筮黄道</p>
+          <h1>专属于个人八字的黄道日历</h1>
+          <p class="portal-copy">
+            这个板块会把用户八字、当下节气、月令变化与黄道吉日结合起来，生成专属于这个人的日历式宜忌建议。当前先搭建前端结构，后续再正式接入个人档案与自动推算逻辑。
+          </p>
+          <div class="mini-list" style="margin-top: 16px;">
+            <span class="chip">个人八字联动</span>
+            <span class="chip">黄道吉日筛选</span>
+            <span class="chip">月令节气提醒</span>
+            <span class="chip">穿戴与方位建议</span>
+          </div>
+        </section>
+
+        <section class="portal-grid">
+          <article class="portal-card">
+            <span class="portal-tag">日历核心</span>
+            <h2>本月吉日总览</h2>
+            <p>按“适合签约、见面、出行、搬迁、表白、开工、求财、静修”等场景分类，生成个人化吉日清单。</p>
+            <div class="mini-list" style="margin-top: 16px;">
+              <span class="chip">签约</span>
+              <span class="chip">感情</span>
+              <span class="chip">出行</span>
+              <span class="chip">开工</span>
+            </div>
+          </article>
+
+          <article class="portal-card">
+            <span class="portal-tag">八字联动</span>
+            <h2>结合喜忌五行的专属提醒</h2>
+            <p>根据命主喜用神、旺衰结构和当月月令，给出颜色、材质、作息节奏、行动方向与避忌提示。</p>
+            <div class="mini-list" style="margin-top: 16px;">
+              <span class="chip">喜用五行</span>
+              <span class="chip">穿戴配色</span>
+              <span class="chip">出行方位</span>
+              <span class="chip">当日宜忌</span>
+            </div>
+          </article>
+        </section>
+
+        <section class="home-bottom-grid">
+          <article class="bottom-panel">
+            <p class="section-kicker">第一版结构</p>
+            <h3>页面后续会接入个人档案</h3>
+            <p>登录后自动读取最近一次八字档案，直接生成本月重点吉日、近 7 天趋势卡片、今日提醒和重要事项建议。</p>
+          </article>
+
+          <article class="bottom-panel">
+            <p class="section-kicker">后续功能</p>
+            <h3>可扩展为完整黄道日历中心</h3>
+            <p>后续可以继续加入日历翻页、按事项筛选、AI 命理师追问、每日推送和每月提醒等能力，形成“青筮建议 + 黄道日历”组合页。</p>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <script src="/account-menu.js" type="module"></script>
+  </body>
+</html>

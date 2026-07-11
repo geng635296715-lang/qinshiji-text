@@ -1,0 +1,242 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>青筮记 · 八字命理</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/dark-theme.css" />
+    <link rel="stylesheet" href="/bazi-page.css" />
+  </head>
+  <body class="qs-dark-page bazi-cosmos-page">
+    <div class="bazi-page-shell" data-page="bazi">
+      <div class="bazi-home-nav">
+        <a class="brand-lockup" href="/home.html" aria-label="返回青筮记首页">
+          <img class="brand-app-logo" src="/assets/applogo.png" alt="" />
+          <img class="brand-word-logo" src="/assets/logo-horizontal.png" alt="青筮记" />
+        </a>
+
+        <header class="site-header" aria-label="页面导航">
+          <a class="nav-link" href="/home.html">首页</a>
+          <a class="nav-link" href="/divination.html">占卜</a>
+          <a class="nav-link active" href="/bazi.html">八字</a>
+          <a class="nav-link" href="/huangdao.html">青筮黄道</a>
+          <a class="nav-link" href="/courses.html">课程</a>
+          <a class="nav-link" href="/profile.html">记录</a>
+          <a class="nav-link" href="/about.html">关于</a>
+        </header>
+
+        <div class="login-button home-login-entry rebuilt-home-account" data-account-entry></div>
+      </div>
+
+      <main class="bazi-cosmos-layout">
+        <aside class="bazi-sidebar bazi-archive-panel panel-card">
+          <div class="bazi-panel-head">
+            <div class="bazi-panel-head-copy">
+              <p class="section-kicker">档案列表</p>
+            </div>
+            <button class="archive-add-btn" type="button" id="open-create-archive-inline" aria-label="新增档案">+</button>
+          </div>
+
+          <div class="bazi-archive-list-box">
+            <div id="archive-sidebar-list" class="list-stack bazi-sidebar-list"></div>
+          </div>
+
+          <div class="bazi-archive-footer">
+            <button class="primary-btn bazi-generate-btn" type="button" id="generate-from-selected">生成当前命盘</button>
+          </div>
+        </aside>
+
+        <section class="bazi-main-panel panel-card">
+          <div class="bazi-main-atmosphere" aria-hidden="true"></div>
+          <div class="bazi-main-header">
+            <div>
+              <p class="section-kicker">八字排盘</p>
+            </div>
+          </div>
+
+          <div id="bazi-result" class="bazi-result-stage">
+            <div class="empty-state">
+              先从左侧选定命主，再生成庚帖。这里会依次展开命局总览、四柱排盘、五行旺衰、神煞、大运流年与专项解读。
+            </div>
+          </div>
+        </section>
+
+        <aside class="bazi-sidebar bazi-ai-panel panel-card">
+          <div class="bazi-panel-head bazi-ai-head">
+            <div></div>
+            <span class="chip">读取当前命盘</span>
+          </div>
+
+          <div class="bazi-ai-chat-wrap">
+            <div class="bazi-ai-hero" id="bazi-ai-hero" aria-hidden="true">
+              <p class="bazi-ai-hero-kicker">青筮AI</p>
+              <h3 class="bazi-ai-hero-title">今天想解读什么？</h3>
+              <p class="bazi-ai-hero-copy">关于运势、感情、事业、流年，<br />都可以直接问我。</p>
+              <div class="bazi-ai-suggestion-strip" id="bazi-ai-suggestions" aria-label="推荐问题"></div>
+            </div>
+            <div id="bazi-ai-chat" class="chat-list bazi-ai-chat-list">
+            </div>
+          </div>
+
+          <div class="bazi-ai-askbox">
+            <textarea id="bazi-ai-question" placeholder="请输入你想追问的问题..."></textarea>
+            <button id="bazi-ai-send" type="button" aria-label="发送给 AI 命理师">
+              <span class="bazi-ai-send-icon" aria-hidden="true"></span>
+            </button>
+          </div>
+
+          <a class="ghost-btn bazi-compat-switch" href="/compatibility.html">切换至合盘对照</a>
+        </aside>
+      </main>
+    </div>
+
+    <div class="modal-overlay" id="archive-picker-modal" hidden>
+      <div class="modal-card">
+        <div class="section-title">
+          <div>
+            <p class="section-kicker">档案列表</p>
+            <h2>选择基础信息档案</h2>
+          </div>
+          <button class="ghost-btn" type="button" id="close-archive-picker">关闭</button>
+        </div>
+
+        <div id="archive-list" class="list-stack"></div>
+
+        <div class="button-row">
+          <button class="primary-btn" type="button" id="open-create-archive">新增信息</button>
+          <button class="ghost-btn" type="button" id="confirm-archive-selection">确定选择</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="archive-create-modal" hidden>
+      <div class="modal-card modal-card-wide">
+        <div class="section-title">
+          <div>
+            <p class="section-kicker">青筮命帖录入</p>
+            <h2 id="archive-create-title">录入基础信息</h2>
+          </div>
+          <button class="ghost-btn" type="button" id="close-create-archive">关闭</button>
+        </div>
+
+        <form id="archive-create-form">
+          <div class="bazi-form-hero">
+            <div>
+              <p class="card-label">排盘模式</p>
+              <h3>单人命帖</h3>
+              <p class="muted">先录入命主基础信息，再生成专属八字排盘与命理解读。</p>
+            </div>
+            <div class="mini-list">
+              <span class="chip">生辰录入</span>
+              <span class="chip">节气换算</span>
+              <span class="chip">命局推演</span>
+            </div>
+          </div>
+
+          <div class="bazi-form-section">
+            <div class="section-title">
+              <div>
+                <p class="section-kicker">称谓与定性</p>
+                <h3>命主身份</h3>
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="field">
+                <label for="archive-nickname">称谓</label>
+                <input id="archive-nickname" type="text" placeholder="例如：自己 / 妈妈 / 客户A" />
+              </div>
+              <div class="field">
+                <label for="archive-gender">乾坤定性</label>
+                <select id="archive-gender">
+                  <option value="male">男命</option>
+                  <option value="female">女命</option>
+                  <option value="other">其他</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="bazi-form-section">
+            <div class="section-title">
+              <div>
+                <p class="section-kicker">诞辰之候</p>
+                <h3>出生时间</h3>
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="field">
+                <label for="archive-calendar-type">历法类型</label>
+                <select id="archive-calendar-type">
+                  <option value="solar">公历</option>
+                  <option value="lunar">农历</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="archive-birth-place">诞生之地</label>
+                <input id="archive-birth-place" type="text" value="Shanghai" />
+              </div>
+            </div>
+
+            <div id="archive-solar-fields" class="form-grid">
+              <div class="field">
+                <label for="archive-birth-date">阳历生日</label>
+                <input id="archive-birth-date" type="date" />
+              </div>
+              <div class="field">
+                <label for="archive-birth-time">出生时刻</label>
+                <input id="archive-birth-time" type="time" value="09:00" />
+              </div>
+            </div>
+
+            <div id="archive-lunar-fields" class="form-grid quad" hidden>
+              <div class="field">
+                <label for="archive-lunar-year">农历年份</label>
+                <input id="archive-lunar-year" type="number" value="2000" min="1900" max="2099" />
+              </div>
+              <div class="field">
+                <label for="archive-lunar-month">农历月份</label>
+                <select id="archive-lunar-month"></select>
+              </div>
+              <div class="field">
+                <label for="archive-lunar-day">农历日期</label>
+                <select id="archive-lunar-day"></select>
+              </div>
+              <div class="field">
+                <label for="archive-lunar-hour">出生时辰</label>
+                <select id="archive-lunar-hour"></select>
+              </div>
+            </div>
+          </div>
+
+          <div class="bazi-form-section">
+            <div class="section-title">
+              <div>
+                <p class="section-kicker">附记</p>
+                <h3>补充备注</h3>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="archive-note">附注</label>
+              <input id="archive-note" type="text" placeholder="例如：家人档案 / 合盘备用 / 老客户" />
+            </div>
+          </div>
+
+          <div class="button-row">
+            <button class="primary-btn" id="archive-create-submit" type="submit">立成命帖</button>
+          </div>
+          <div class="info-note" id="archive-create-message">
+            保存后会回到档案列表，你可以继续选择，也可以直接关闭回到八字排盘页。
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="/account-menu.js" type="module"></script>
+    <script src="/bazi.js" type="module"></script>
+  </body>
+</html>
+

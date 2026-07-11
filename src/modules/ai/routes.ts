@@ -1,5 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
+import { getRequestUser } from "../../shared/auth/request.js";
+import { saveAiConsultationRecordForUser } from "../user-center/service.js";
 import { consultWithDeepSeek } from "./service.js";
 
 const aiConsultSchema = z.object({
@@ -11,7 +13,9 @@ const aiConsultSchema = z.object({
     role: z.enum(["user", "assistant"]),
     content: z.string().min(1)
   })).optional(),
-  model: z.string().min(1).optional()
+  model: z.string().min(1).optional(),
+  maxTokens: z.number().int().min(64).max(4096).optional(),
+  temperature: z.number().min(0).max(2).optional()
 });
 
 export async function registerAiRoutes(app: FastifyInstance) {
@@ -27,6 +31,19 @@ export async function registerAiRoutes(app: FastifyInstance) {
 
     try {
       const result = await consultWithDeepSeek(parsed.data);
+      const user = getRequestUser(request);
+      if (user) {
+        saveAiConsultationRecordForUser({
+          userId: user.id,
+          module: parsed.data.module,
+          sessionId: parsed.data.sessionId,
+          question: parsed.data.question,
+          answer: result.answer,
+          model: parsed.data.model ?? result.model,
+          context: parsed.data.context,
+          history: parsed.data.history
+        });
+      }
 
       return {
         input: {

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>青筮记 · 六爻金钱课</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/dark-theme.css" />
+    <link rel="stylesheet" href="/divination-page.css" />
+  </head>
+  <body class="qs-dark-page">
+    <div class="app-shell divination-page" data-page="liuyao" data-divination-page="liuyao">
+      <header class="app-header">
+        <div class="app-title-group">
+          <p class="section-kicker">青筮记 · 六爻功能页</p>
+          <h1>六爻金钱课</h1>
+          <p class="muted">自动起卦、手动录爻、起卦时间与 AI 追问都放在这里，页面结构与后端接口一一对应。</p>
+        </div>
+
+        <div class="mini-list">
+          <a class="chip" href="/divination.html">返回占卜入口</a>
+          <a class="chip" href="/meihua.html">切到梅花页</a>
+          <a class="chip" href="/home.html">返回首页</a>
+          <span class="chip" data-user-chip="liuyao">访客</span>
+        </div>
+      </header>
+
+      <div class="app-grid">
+        <section class="left-column">
+          <div class="form-card">
+            <div class="section-title">
+              <div>
+                <p class="section-kicker">起卦输入</p>
+                <h2>六爻参数</h2>
+              </div>
+              <div class="mini-list">
+                <span class="chip">世应</span>
+                <span class="chip">六亲</span>
+                <span class="chip">六神</span>
+                <span class="chip">伏神</span>
+              </div>
+            </div>
+
+            <form data-form="liuyao">
+              <div class="form-grid">
+                <div class="field">
+                  <label for="liuyao-title">问题标题</label>
+                  <input id="liuyao-title" type="text" value="我想问这件事的后续走向" />
+                </div>
+                <div class="field">
+                  <label for="liuyao-topic">主题</label>
+                  <select id="liuyao-topic">
+                    <option value="decision">决断</option>
+                    <option value="career">事业</option>
+                    <option value="wealth">财运</option>
+                    <option value="love">感情</option>
+                    <option value="relationship">关系</option>
+                    <option value="health">健康</option>
+                    <option value="travel">出行</option>
+                    <option value="missing-item">寻物</option>
+                    <option value="other">其他</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-grid">
+                <div class="field">
+                  <label for="liuyao-casting-mode">起卦方式</label>
+                  <select id="liuyao-casting-mode">
+                    <option value="auto">自动起卦</option>
+                    <option value="manual">手动录爻</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="liuyao-occurred-at">起卦时间</label>
+                  <input id="liuyao-occurred-at" type="datetime-local" />
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="liuyao-description">问题描述</label>
+                <textarea id="liuyao-description" placeholder="例如：项目是否适合现在推进，还是等下一轮时机？"></textarea>
+              </div>
+
+              <div class="field" data-liuyao-manual>
+                <div class="section-title">
+                  <div>
+                    <p class="section-kicker">手动录爻</p>
+                    <h3>六条爻象</h3>
+                  </div>
+                  <button class="ghost-btn" type="button" data-randomize-lines>随机生成</button>
+                </div>
+                <div class="line-select-grid">
+                  <label class="field is-tight"><span>初爻</span><select id="liuyao-line-1"><option value="young-yang">少阳</option><option value="young-yin">少阴</option><option value="old-yang">老阳</option><option value="old-yin">老阴</option></select></label>
+                  <label class="field is-tight"><span>二爻</span><select id="liuyao-line-2"><option value="young-yang">少阳</option><option value="young-yin">少阴</option><option value="old-yang">老阳</option><option value="old-yin">老阴</option></select></label>
+                  <label class="field is-tight"><span>三爻</span><select id="liuyao-line-3"><option value="young-yang">少阳</option><option value="young-yin">少阴</option><option value="old-yang">老阳</option><option value="old-yin">老阴</option></select></label>
+                  <label class="field is-tight"><span>四爻</span><select id="liuyao-line-4"><option value="young-yang">少阳</option><option value="young-yin">少阴</option><option value="old-yang">老阳</option><option value="old-yin">老阴</option></select></label>
+                  <label class="field is-tight"><span>五爻</span><select id="liuyao-line-5"><option value="young-yang">少阳</option><option value="young-yin">少阴</option><option value="old-yang">老阳</option><option value="old-yin">老阴</option></select></label>
+                  <label class="field is-tight"><span>上爻</span><select id="liuyao-line-6"><option value="young-yang">少阳</option><option value="young-yin">少阴</option><option value="old-yang">老阳</option><option value="old-yin">老阴</option></select></label>
+                </div>
+              </div>
+
+              <div class="button-row">
+                <button class="primary-btn" type="submit">起卦并查看结果</button>
+                <button class="ghost-btn" type="button" data-refresh="liuyao">重置表单</button>
+              </div>
+            </form>
+          </div>
+
+          <div id="liuyao-result" class="panel-card" data-result="liuyao">
+            <div class="empty-state">提交起卦后，这里会显示本卦、变卦、爻位、专题断语和详细解释。</div>
+          </div>
+        </section>
+
+        <aside class="right-column">
+          <div class="ai-card sticky-card">
+            <div class="section-title">
+              <div>
+                <p class="ai-kicker">青筮记 · AI</p>
+                <h2>六爻追问</h2>
+              </div>
+              <span class="chip">当前卦象上下文</span>
+            </div>
+
+            <div class="chat-list" data-ai-chat="liuyao">
+              <div class="chat-bubble assistant">先起卦，再继续追问具体时间点、关键转折和可执行动作。</div>
+            </div>
+
+            <div class="suggestion-strip" data-ai-suggestions="liuyao"></div>
+
+            <div class="ai-input">
+              <textarea data-ai-question="liuyao" placeholder="例如：这件事如果我本周推进，会更容易在哪一步卡住？"></textarea>
+              <button class="primary-btn" type="button" data-ai-send="liuyao">发送给 AI 命理师</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <script src="/account-menu.js" type="module"></script>
+    <script src="/divination-page.js" type="module"></script>
+  </body>
+</html>

@@ -1,12 +1,14 @@
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import type { DivinationTopic } from "../../shared/types/domain.js";
+import { getRequestUser } from "../../shared/auth/request.js";
 import {
   buildLiuyaoAiContext,
   buildMeihuaAiContext,
   castLiuyao,
   castMeihua
 } from "./service.js";
+import { saveDivinationRecordForUser } from "../user-center/service.js";
 import {
   buildDivinationAiView,
   buildLiuyaoPageView,
@@ -69,9 +71,20 @@ export async function registerDivinationRoutes(app: FastifyInstance) {
     }
 
     try {
-      return {
-        result: castLiuyao(parsed.data)
-      };
+      const result = castLiuyao(parsed.data);
+      const user = getRequestUser(request);
+      if (user) {
+        saveDivinationRecordForUser({
+          userId: user.id,
+          method: "liuyao",
+          topic: parsed.data.topic,
+          title: parsed.data.title,
+          description: parsed.data.description,
+          requestPayload: parsed.data,
+          resultPayload: result
+        });
+      }
+      return { result };
     } catch (error) {
       return reply.status(400).send({
         message: error instanceof Error ? error.message : "Failed to cast liuyao"
@@ -91,6 +104,18 @@ export async function registerDivinationRoutes(app: FastifyInstance) {
 
     try {
       const result = castLiuyao(parsed.data);
+      const user = getRequestUser(request);
+      if (user) {
+        saveDivinationRecordForUser({
+          userId: user.id,
+          method: "liuyao",
+          topic: parsed.data.topic,
+          title: parsed.data.title,
+          description: parsed.data.description,
+          requestPayload: parsed.data,
+          resultPayload: result
+        });
+      }
       return {
         result,
         view: buildLiuyaoPageView(result)
@@ -139,9 +164,20 @@ export async function registerDivinationRoutes(app: FastifyInstance) {
     }
 
     try {
-      return {
-        result: castMeihua(parsed.data)
-      };
+      const result = castMeihua(parsed.data);
+      const user = getRequestUser(request);
+      if (user) {
+        saveDivinationRecordForUser({
+          userId: user.id,
+          method: "meihua",
+          topic: parsed.data.topic,
+          title: parsed.data.title,
+          description: parsed.data.description,
+          requestPayload: parsed.data,
+          resultPayload: result
+        });
+      }
+      return { result };
     } catch (error) {
       return reply.status(400).send({
         message: error instanceof Error ? error.message : "Failed to cast meihua"
@@ -161,6 +197,18 @@ export async function registerDivinationRoutes(app: FastifyInstance) {
 
     try {
       const result = castMeihua(parsed.data);
+      const user = getRequestUser(request);
+      if (user) {
+        saveDivinationRecordForUser({
+          userId: user.id,
+          method: "meihua",
+          topic: parsed.data.topic,
+          title: parsed.data.title,
+          description: parsed.data.description,
+          requestPayload: parsed.data,
+          resultPayload: result
+        });
+      }
       return {
         result,
         view: buildMeihuaPageView(result)

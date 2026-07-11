@@ -1,41 +1,314 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>青筮记 · 命理工作台</title>
-    <link rel="stylesheet" href="/styles.css" />
-  </head>
-  <body class="portal-body">
-    <main class="portal-shell">
-      <section class="portal-hero">
-        <p class="portal-kicker">青筮记 · 前端原型</p>
-        <h1>八字与 VIP 合盘页面已接入后端</h1>
-        <p class="portal-copy">
-          当前可直接体验八字排盘、农历选择器、五行配色结果、流年流月分析、合盘图表和右侧
-          AI 命理咨询栏。后续可以继续在这个基础上接六爻、梅花易数与青筮建议页面。
-        </p>
-      </section>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>青筮记 · 起始页</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Noto+Serif+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #030303;
+      --gold: #e7b75b;
+      --gold-soft: #f1cf84;
+      --white-star: rgba(247, 246, 243, 0.96);
+      --gold-star: rgba(231, 183, 91, 0.92);
+      --orange-star: rgba(255, 150, 72, 0.84);
+      --text-soft: rgba(216, 210, 200, 0.72);
+      --text-deep: rgba(123, 118, 110, 0.62);
+      --font-display: "Noto Serif SC", "Songti SC", serif;
+      --font-roman: "Cormorant Garamond", serif;
+    }
 
-      <section class="portal-grid">
-        <a class="portal-card" href="/bazi.html">
-          <span class="portal-tag">单人命盘</span>
-          <h2>八字页面</h2>
-          <p>支持公历 / 农历切换、四柱展示、神煞总览、专业流运节奏、VIP 专项解读与 AI 追问。</p>
-        </a>
+    * {
+      box-sizing: border-box;
+    }
 
-        <a class="portal-card" href="/compatibility.html">
-          <span class="portal-tag">双人关系</span>
-          <h2>合盘页面</h2>
-          <p>支持情侣、同性情侣、同事、老板员工、合伙人等关系类型，含图表对照与 AI 深聊。</p>
-        </a>
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      min-height: 100%;
+      background: var(--bg);
+      color: #f3e5c2;
+      overflow: hidden;
+      font-family: var(--font-display);
+    }
 
-        <a class="portal-card" href="/qingzhi.html">
-          <span class="portal-tag">个人中心</span>
-          <h2>青筮建议</h2>
-          <p>支持登录用户读取八字档案，自动生成 7 天建议、吉日分类、穿戴建议、方向场景建议与提醒配置。</p>
-        </a>
-      </section>
-    </main>
-  </body>
+    body {
+      position: relative;
+      min-height: 100vh;
+    }
+
+    .splash-cosmos,
+    .splash-vignette,
+    .splash-sigil,
+    .splash-shell {
+      position: fixed;
+      inset: 0;
+    }
+
+    .splash-cosmos,
+    .splash-vignette,
+    .splash-sigil {
+      pointer-events: none;
+    }
+
+    .splash-cosmos {
+      z-index: 0;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 48%, rgba(247, 202, 118, 0.08), transparent 18%),
+        radial-gradient(circle at 22% 24%, rgba(255, 255, 255, 0.05), transparent 18%),
+        radial-gradient(circle at 78% 26%, rgba(255, 150, 72, 0.05), transparent 22%),
+        linear-gradient(180deg, #020202 0%, #050505 100%);
+    }
+
+    .splash-galaxy {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      opacity: 0.96;
+    }
+
+    .splash-nebula {
+      position: absolute;
+      inset: -8%;
+      background:
+        radial-gradient(circle at 50% 52%, rgba(231, 183, 91, 0.03), transparent 20%),
+        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.012), transparent 32%),
+        radial-gradient(circle at 50% 48%, rgba(255, 150, 72, 0.015), transparent 40%);
+      filter: blur(28px);
+      opacity: 0.72;
+      animation: nebulaBreathe 12s ease-in-out infinite;
+    }
+
+    .splash-vignette {
+      z-index: 1;
+      background:
+        radial-gradient(circle at center, transparent 0 42%, rgba(0, 0, 0, 0.44) 100%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0));
+    }
+
+    .splash-sigil {
+      z-index: 2;
+      display: grid;
+      place-items: center;
+    }
+
+    .splash-sigil img {
+      width: min(56vw, 640px);
+      height: auto;
+      opacity: 1;
+      animation: astrolabeSpin 60s linear infinite;
+      filter:
+        drop-shadow(0 0 18px rgba(231, 183, 91, 0.18))
+        drop-shadow(0 0 36px rgba(255, 150, 72, 0.12));
+    }
+
+    .splash-shell {
+      z-index: 3;
+      display: grid;
+      place-items: center;
+      padding: 48px 24px;
+    }
+
+    .splash-link {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+      color: inherit;
+      text-decoration: none;
+      text-align: center;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .logo-wrap,
+    .subtitle,
+    .meta,
+    .hint {
+      opacity: 1;
+      transform: none;
+      filter: none;
+      animation-fill-mode: both;
+    }
+
+    .logo-wrap {
+      animation: riseIn 880ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .logo-wrap img {
+      width: min(420px, 64vw);
+      height: auto;
+      display: block;
+      filter: drop-shadow(0 0 18px rgba(231, 183, 91, 0.16));
+    }
+
+    .title-line {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.32em;
+      font-size: clamp(34px, 4vw, 62px);
+      line-height: 1.3;
+      letter-spacing: 0.16em;
+      color: var(--gold-soft);
+    }
+
+    .title-group {
+      display: inline-flex;
+      gap: 0.32em;
+    }
+
+    .title-group + .title-group {
+      margin-left: 0.9em;
+    }
+
+    .title-char {
+      opacity: 1;
+      transform: none;
+      filter: none;
+      text-shadow:
+        0 0 18px rgba(231, 183, 91, 0.08),
+        0 0 26px rgba(255, 150, 72, 0.05);
+      animation: charIn 720ms cubic-bezier(0.22, 1, 0.36, 1);
+      animation-fill-mode: both;
+    }
+
+    .subtitle {
+      margin-top: 4px;
+      color: var(--text-soft);
+      font-size: clamp(15px, 1.2vw, 20px);
+      letter-spacing: 0.14em;
+      animation: riseIn 760ms cubic-bezier(0.22, 1, 0.36, 1);
+      animation-delay: 900ms;
+    }
+
+    .meta {
+      color: var(--text-deep);
+      font-size: clamp(11px, 0.82vw, 14px);
+      letter-spacing: 0.24em;
+      animation: riseIn 760ms cubic-bezier(0.22, 1, 0.36, 1);
+      animation-delay: 1040ms;
+    }
+
+    .hint {
+      margin-top: 10px;
+      color: rgba(231, 183, 91, 0.46);
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      animation: riseIn 760ms cubic-bezier(0.22, 1, 0.36, 1);
+      animation-delay: 1400ms;
+    }
+
+    .splash-link:hover .logo-wrap img,
+    .splash-link:focus-visible .logo-wrap img {
+      transform: scale(1.015);
+      transition: transform 260ms ease;
+    }
+
+    .splash-link:hover .title-char,
+    .splash-link:focus-visible .title-char {
+      color: #f6d88f;
+      transition: color 220ms ease;
+    }
+
+    @keyframes riseIn {
+      0% {
+        opacity: 0;
+        transform: translateY(18px) scale(0.985);
+        filter: blur(10px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+      }
+    }
+
+    @keyframes charIn {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+        filter: blur(10px);
+      }
+      65% {
+        opacity: 1;
+        transform: translateY(-1px);
+        filter: blur(0);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+      }
+    }
+
+    @keyframes astrolabeSpin {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes nebulaBreathe {
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 0.58;
+      }
+      50% {
+        transform: scale(1.04);
+        opacity: 0.72;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="splash-cosmos" aria-hidden="true">
+    <canvas class="splash-galaxy" data-start-galaxy></canvas>
+    <div class="splash-nebula"></div>
+  </div>
+  <div class="splash-vignette" aria-hidden="true"></div>
+  <div class="splash-sigil" aria-hidden="true">
+    <img src="/assets/astrolabe-transparent.png" alt="">
+  </div>
+
+  <main class="splash-shell">
+    <a class="splash-link" href="/home.html" aria-label="进入青筮记首页">
+      <div class="logo-wrap">
+        <img src="/assets/logo-horizontal.png" alt="青筮记">
+      </div>
+
+      <div class="title-line" aria-label="青衣筮卜 易断天机">
+        <span class="title-group">
+          <span class="title-char" style="animation-delay: 260ms;">青</span>
+          <span class="title-char" style="animation-delay: 340ms;">衣</span>
+          <span class="title-char" style="animation-delay: 420ms;">筮</span>
+          <span class="title-char" style="animation-delay: 500ms;">卜</span>
+        </span>
+        <span class="title-group">
+          <span class="title-char" style="animation-delay: 620ms;">易</span>
+          <span class="title-char" style="animation-delay: 700ms;">断</span>
+          <span class="title-char" style="animation-delay: 780ms;">天</span>
+          <span class="title-char" style="animation-delay: 860ms;">机</span>
+        </span>
+      </div>
+
+      <div class="subtitle">使用最专业的方式，提供最明了的阐释</div>
+      <div class="meta">自建青筮AI数据库</div>
+      <div class="hint">点击文字进入首页</div>
+    </a>
+  </main>
+  <script type="module" src="/start-galaxy.js"></script>
+</body>
 </html>

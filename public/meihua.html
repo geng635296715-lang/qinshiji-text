@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>青筮记 · 梅花易数</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/dark-theme.css" />
+    <link rel="stylesheet" href="/divination-page.css" />
+  </head>
+  <body class="qs-dark-page">
+    <div class="app-shell divination-page" data-page="meihua" data-divination-page="meihua">
+      <header class="app-header">
+        <div class="app-title-group">
+          <p class="section-kicker">青筮记 · 梅花功能页</p>
+          <h1>梅花易数</h1>
+          <p class="muted">时间起卦、数字起卦与外应扩展都在这一页，结果页会直接展示体用、互卦、变卦和专项提示。</p>
+        </div>
+
+        <div class="mini-list">
+          <a class="chip" href="/divination.html">返回占卜入口</a>
+          <a class="chip" href="/liuyao.html">切到六爻页</a>
+          <a class="chip" href="/home.html">返回首页</a>
+          <span class="chip" data-user-chip="meihua">访客</span>
+        </div>
+      </header>
+
+      <div class="app-grid">
+        <section class="left-column">
+          <div class="form-card">
+            <div class="section-title">
+              <div>
+                <p class="section-kicker">起卦输入</p>
+                <h2>梅花参数</h2>
+              </div>
+              <div class="mini-list">
+                <span class="chip">时间取数</span>
+                <span class="chip">数字取数</span>
+                <span class="chip">外应扩展</span>
+              </div>
+            </div>
+
+            <form data-form="meihua">
+              <div class="form-grid">
+                <div class="field">
+                  <label for="meihua-title">问题标题</label>
+                  <input id="meihua-title" type="text" value="我想问这件事怎么走" />
+                </div>
+                <div class="field">
+                  <label for="meihua-topic">主题</label>
+                  <select id="meihua-topic">
+                    <option value="decision">决断</option>
+                    <option value="career">事业</option>
+                    <option value="wealth">财运</option>
+                    <option value="love">感情</option>
+                    <option value="relationship">关系</option>
+                    <option value="health">健康</option>
+                    <option value="travel">出行</option>
+                    <option value="missing-item">寻物</option>
+                    <option value="other">其他</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-grid">
+                <div class="field">
+                  <label for="meihua-casting-mode">起卦方式</label>
+                  <select id="meihua-casting-mode">
+                    <option value="numbers">数字起卦</option>
+                    <option value="time">时间起卦</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="meihua-time-method">时间方法</label>
+                  <select id="meihua-time-method">
+                    <option value="ymdhm">年月日时分</option>
+                    <option value="ymdh">年月日时</option>
+                    <option value="ymd">年月日</option>
+                    <option value="lunar-ymdh">农历年月日时</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="field" data-meihua-numbers>
+                <div class="section-title">
+                  <div>
+                    <p class="section-kicker">数字取数</p>
+                    <h3>三组数字</h3>
+                  </div>
+                  <span class="chip">前两组必填，第三组可选</span>
+                </div>
+                <div class="form-grid quad">
+                  <div class="field">
+                    <label for="meihua-number-1">数字一</label>
+                    <input id="meihua-number-1" type="number" value="8" />
+                  </div>
+                  <div class="field">
+                    <label for="meihua-number-2">数字二</label>
+                    <input id="meihua-number-2" type="number" value="17" />
+                  </div>
+                  <div class="field">
+                    <label for="meihua-number-3">数字三</label>
+                    <input id="meihua-number-3" type="number" value="6" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="field" data-meihua-time>
+                <div class="section-title">
+                  <div>
+                    <p class="section-kicker">时间起卦</p>
+                    <h3>发生时间</h3>
+                  </div>
+                </div>
+                <div class="form-grid">
+                  <div class="field">
+                    <label for="meihua-occurred-at">起卦时间</label>
+                    <input id="meihua-occurred-at" type="datetime-local" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="meihua-description">问题描述</label>
+                <textarea id="meihua-description" placeholder="例如：我和对方下一步是否适合推进合作？"></textarea>
+              </div>
+
+              <div class="section-title">
+                <div>
+                  <p class="section-kicker">外应扩展</p>
+                  <h3>可选辅助信息</h3>
+                </div>
+              </div>
+              <div class="form-grid quad">
+                <div class="field"><label for="meihua-omen-direction">方向</label><input id="meihua-omen-direction" type="text" placeholder="东 / 西 / 南 / 北" /></div>
+                <div class="field"><label for="meihua-omen-sound">声音</label><input id="meihua-omen-sound" type="text" placeholder="如：车声、铃声" /></div>
+                <div class="field"><label for="meihua-omen-color">颜色</label><input id="meihua-omen-color" type="text" placeholder="如：红、黑、白" /></div>
+                <div class="field"><label for="meihua-omen-motion">动静</label><input id="meihua-omen-motion" type="text" placeholder="如：静止、快速移动" /></div>
+                <div class="field"><label for="meihua-omen-count">数字</label><input id="meihua-omen-count" type="number" placeholder="如：3" /></div>
+                <div class="field"><label for="meihua-omen-object">触物</label><input id="meihua-omen-object" type="text" placeholder="如：门、手机、杯子" /></div>
+                <div class="field" style="grid-column: 1 / -1;"><label for="meihua-omen-scene">场景</label><input id="meihua-omen-scene" type="text" placeholder="如：办公室、路上、家中" /></div>
+              </div>
+
+              <div class="button-row">
+                <button class="primary-btn" type="submit">起卦并查看结果</button>
+                <button class="ghost-btn" type="button" data-refresh="meihua">重置表单</button>
+              </div>
+            </form>
+          </div>
+
+          <div id="meihua-result" class="panel-card" data-result="meihua">
+            <div class="empty-state">提交起卦后，这里会展示本卦、互卦、变卦、体用关系和专项断语。</div>
+          </div>
+        </section>
+
+        <aside class="right-column">
+          <div class="ai-card sticky-card">
+            <div class="section-title">
+              <div>
+                <p class="ai-kicker">青筮记 · AI</p>
+                <h2>梅花追问</h2>
+              </div>
+              <span class="chip">当前卦象上下文</span>
+            </div>
+
+            <div class="chat-list" data-ai-chat="meihua">
+              <div class="chat-bubble assistant">先起卦，再继续追问体用、互卦、变卦和时间线。</div>
+            </div>
+
+            <div class="suggestion-strip" data-ai-suggestions="meihua"></div>
+
+            <div class="ai-input">
+              <textarea data-ai-question="meihua" placeholder="例如：如果我按这个方向推进，最可能的阻力在哪里？"></textarea>
+              <button class="primary-btn" type="button" data-ai-send="meihua">发送给 AI 命理师</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <script src="/account-menu.js" type="module"></script>
+    <script src="/divination-page.js" type="module"></script>
+  </body>
+</html>

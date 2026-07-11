@@ -13,6 +13,8 @@ export type AiConsultInput = {
     content: string;
   }>;
   model?: string;
+  maxTokens?: number;
+  temperature?: number;
 };
 
 function getDefaultSystemPrompt(module: ConsultModule) {
@@ -188,8 +190,8 @@ export async function consultWithDeepSeek(input: AiConsultInput) {
       thinking: {
         type: "disabled"
       },
-      temperature: 0.6,
-      max_tokens: 900,
+      temperature: input.temperature ?? 0.6,
+      max_tokens: input.maxTokens ?? 900,
       messages: buildMessages(input)
     })
   });

@@ -3,11 +3,13 @@ import cors from "@fastify/cors";
 import fastifyStatic from "@fastify/static";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { registerAuthRoutes } from "./modules/auth/routes.js";
 import { registerAiRoutes } from "./modules/ai/routes.js";
 import { registerBaziRoutes } from "./modules/bazi/routes.js";
 import { registerDivinationRoutes } from "./modules/divination/routes.js";
 import { registerHealthRoutes } from "./modules/health/routes.js";
 import { registerQingzhiAdviceRoutes } from "./modules/qingzhi-advice/routes.js";
+import { registerUserCenterRoutes } from "./modules/user-center/routes.js";
 import { registerMetaRoute } from "./shared/http/meta-route.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -28,9 +30,11 @@ export function buildApp() {
 
   app.register(registerHealthRoutes);
   app.register(registerMetaRoute);
+  app.register(registerAuthRoutes);
   app.register(registerBaziRoutes);
   app.register(registerDivinationRoutes);
   app.register(registerQingzhiAdviceRoutes);
+  app.register(registerUserCenterRoutes);
   app.register(registerAiRoutes);
 
   return app;

@@ -1,14 +1,12 @@
-const ACTIVE_USER_KEY = "qingzhi-active-user-id";
+import { authFetch, fetchCurrentUser, getSessionToken } from "/session.js";
 
 const resultContainer = document.querySelector("#qingzhi-result");
 const activeUserChip = document.querySelector("#active-user-chip");
+const currentUserName = document.querySelector("#current-user-name");
 const archiveStatusNote = document.querySelector("#archive-status-note");
 const reminderPreviewNote = document.querySelector("#reminder-preview-note");
+const reloadCenterButton = document.querySelector("#reload-center");
 
-const loginForm = document.querySelector("#center-login-form");
-const logoutButton = document.querySelector("#center-logout");
-const userIdInput = document.querySelector("#center-user-id");
-const displayNameInput = document.querySelector("#center-display-name");
 const generateFromArchiveButton = document.querySelector("#generate-from-archive");
 const adviceScopeInput = document.querySelector("#advice-scope");
 const adviceDateInput = document.querySelector("#advice-date");
@@ -39,7 +37,7 @@ const aiQuestion = document.querySelector("#qingzhi-ai-question");
 const aiSend = document.querySelector("#qingzhi-ai-send");
 const aiSuggestions = document.querySelector("#qingzhi-ai-suggestions");
 
-let activeUserId = localStorage.getItem(ACTIVE_USER_KEY) || "";
+let currentUser = null;
 let currentArchive = null;
 let latestAiContext = null;
 let chatHistory = [];
@@ -50,8 +48,7 @@ calendarTypeInput.addEventListener("change", handleCalendarToggle);
 lunarYearInput.addEventListener("change", () => loadLunarPicker());
 lunarMonthInput.addEventListener("change", () => loadLunarPicker());
 refreshLunarButton.addEventListener("click", () => loadLunarPicker());
-loginForm.addEventListener("submit", onLogin);
-logoutButton.addEventListener("click", onLogout);
+reloadCenterButton.addEventListener("click", () => hydrateCenter(true));
 profileForm.addEventListener("submit", onSaveProfile);
 generateFromArchiveButton.addEventListener("click", () => generateAdviceFromArchive());
 reminderForm.addEventListener("submit", onSaveReminder);
@@ -63,89 +60,75 @@ renderSuggestionChips([
   "未来 7 天哪一天最适合见人？",
   "本月哪个阶段最适合推进事业？",
   "我的穿戴颜色应该怎么选？",
-  "哪一天更适合做重要决定？"
+  "哪一天更适合做重要决断？"
 ]);
 
-if (activeUserId) {
-  userIdInput.value = activeUserId;
-  loadCenter(activeUserId, true);
-} else {
-  syncUserState();
-}
+bootstrap();
 
-async function onLogin(event) {
-  event.preventDefault();
-  const userId = userIdInput.value.trim();
-  if (!userId) {
-    archiveStatusNote.textContent = "请先填写用户标识。";
+async function bootstrap() {
+  if (!getSessionToken()) {
+    syncLoggedOutState();
     return;
   }
 
-  activeUserId = userId;
-  localStorage.setItem(ACTIVE_USER_KEY, userId);
-  await loadCenter(userId, true);
+  await hydrateCenter(true);
 }
 
-function onLogout() {
-  activeUserId = "";
-  currentArchive = null;
-  latestAiContext = null;
-  chatHistory = [];
-  localStorage.removeItem(ACTIVE_USER_KEY);
-  userIdInput.value = "";
-  displayNameInput.value = "";
-  syncUserState();
-  resultContainer.innerHTML =
-    '<div class="empty-state">已退出当前用户。重新登录并保存八字档案后，这里会自动生成青筮建议。</div>';
-}
+async function hydrateCenter(autoGenerate = false) {
+  currentUser = await fetchCurrentUser();
 
-async function loadCenter(userId, autoGenerate) {
+  if (!currentUser) {
+    syncLoggedOutState();
+    return;
+  }
+
+  currentUserName.textContent = currentUser.displayName || currentUser.username;
+  activeUserChip.textContent = `当前用户：${currentUser.displayName || currentUser.username}`;
+
   try {
-    const response = await fetch(`/api/v1/qingzhi-advice/center/${encodeURIComponent(userId)}`);
+    const response = await authFetch("/api/v1/qingzhi-advice/center");
     const data = await response.json();
 
     if (!response.ok) {
-      archiveStatusNote.textContent = data.message || "读取中心失败。";
+      archiveStatusNote.textContent = data.message || "读取青筮中心失败。";
       return;
     }
 
     currentArchive = data.archive;
-    syncUserState();
 
-    if (data.archive) {
-      fillArchive(data.archive);
-      applyReminder(data.archive.reminderSettings);
+    if (currentArchive) {
+      fillArchive(currentArchive);
+      applyReminder(currentArchive.reminderSettings);
       reminderPreviewNote.textContent = data.reminderPreview.summary;
-      archiveStatusNote.textContent = "已读取该用户档案。";
+      archiveStatusNote.textContent = "已读取当前登录用户档案。";
 
       if (autoGenerate) {
         await generateAdviceFromArchive();
       }
     } else {
-      archiveStatusNote.textContent = "该用户还没有八字档案，请先保存档案。";
+      archiveStatusNote.textContent = "当前账号还没有八字档案，请先保存档案。";
       reminderPreviewNote.textContent = "尚未建立提醒配置。";
     }
   } catch (error) {
-    archiveStatusNote.textContent = error.message || "读取中心失败。";
+    archiveStatusNote.textContent = error instanceof Error ? error.message : "读取青筮中心失败。";
   }
 }
 
 async function onSaveProfile(event) {
   event.preventDefault();
 
-  if (!activeUserId) {
+  if (!currentUser) {
     archiveStatusNote.textContent = "请先登录用户，再保存八字档案。";
     return;
   }
 
   const payload = {
-    userId: activeUserId,
-    displayName: displayNameInput.value.trim() || undefined,
+    displayName: currentUser.displayName || currentUser.username,
     profile: await buildProfilePayload()
   };
 
   try {
-    const response = await fetch("/api/v1/qingzhi-advice/center/save-profile", {
+    const response = await authFetch("/api/v1/qingzhi-advice/center/save-profile", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
@@ -158,25 +141,23 @@ async function onSaveProfile(event) {
     }
 
     currentArchive = data.archive;
-    syncUserState();
     reminderPreviewNote.textContent = data.reminderPreview.summary;
-    archiveStatusNote.textContent = "八字档案已保存，正在自动生成今日建议。";
+    archiveStatusNote.textContent = "八字档案已保存，正在自动生成青筮建议。";
     await generateAdviceFromArchive();
   } catch (error) {
-    archiveStatusNote.textContent = error.message || "保存档案失败。";
+    archiveStatusNote.textContent = error instanceof Error ? error.message : "保存档案失败。";
   }
 }
 
 async function onSaveReminder(event) {
   event.preventDefault();
 
-  if (!activeUserId) {
+  if (!currentUser) {
     reminderPreviewNote.textContent = "请先登录并保存用户档案。";
     return;
   }
 
   const payload = {
-    userId: activeUserId,
     reminderSettings: {
       dailyEnabled: dailyEnabledInput.checked,
       dailyTime: dailyTimeInput.value,
@@ -187,7 +168,7 @@ async function onSaveReminder(event) {
   };
 
   try {
-    const response = await fetch("/api/v1/qingzhi-advice/center/save-reminder", {
+    const response = await authFetch("/api/v1/qingzhi-advice/center/save-reminder", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
@@ -201,14 +182,13 @@ async function onSaveReminder(event) {
 
     currentArchive = data.archive;
     reminderPreviewNote.textContent = data.reminderPreview.summary;
-    syncUserState();
   } catch (error) {
-    reminderPreviewNote.textContent = error.message || "保存提醒配置失败。";
+    reminderPreviewNote.textContent = error instanceof Error ? error.message : "保存提醒配置失败。";
   }
 }
 
 async function generateAdviceFromArchive() {
-  if (!activeUserId) {
+  if (!currentUser) {
     archiveStatusNote.textContent = "请先登录用户。";
     return;
   }
@@ -216,11 +196,10 @@ async function generateAdviceFromArchive() {
   resultContainer.innerHTML = '<div class="empty-state">正在生成青筮建议，请稍候...</div>';
 
   try {
-    const response = await fetch("/api/v1/qingzhi-advice/generate-from-profile", {
+    const response = await authFetch("/api/v1/qingzhi-advice/generate-from-profile", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        userId: activeUserId,
         scope: adviceScopeInput.value,
         date: adviceDateInput.value
       })
@@ -235,9 +214,8 @@ async function generateAdviceFromArchive() {
     currentArchive = data.archive;
     latestAiContext = data.aiContext;
     chatHistory = [];
-    syncUserState();
     reminderPreviewNote.textContent = data.reminderPreview.summary;
-    archiveStatusNote.textContent = "已按当前用户档案自动生成建议。";
+    archiveStatusNote.textContent = "已按当前登录用户档案自动生成建议。";
     renderAdviceResult(data.result);
     aiChat.innerHTML =
       '<div class="chat-bubble assistant">青筮建议已更新。你现在可以继续追问哪天适合签约、见人、决策，或者如何运用穿戴与方向建议。</div>';
@@ -249,7 +227,7 @@ async function generateAdviceFromArchive() {
       ]
     );
   } catch (error) {
-    resultContainer.innerHTML = `<div class="empty-state">${error.message || "生成建议失败。"}</div>`;
+    resultContainer.innerHTML = `<div class="empty-state">${error instanceof Error ? error.message : "生成建议失败。"}</div>`;
   }
 }
 
@@ -260,13 +238,15 @@ async function onAiAsk() {
   }
 
   const question = aiQuestion.value.trim();
-  if (!question) return;
+  if (!question) {
+    return;
+  }
 
   appendChat("user", question);
   aiQuestion.value = "";
 
   try {
-    const response = await fetch("/api/v1/ai/consult", {
+    const response = await authFetch("/api/v1/ai/consult", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -289,8 +269,19 @@ async function onAiAsk() {
 
     appendChat("assistant", data.result.answer);
   } catch (error) {
-    appendChat("assistant", error.message || "AI 咨询失败。");
+    appendChat("assistant", error instanceof Error ? error.message : "AI 咨询失败。");
   }
+}
+
+function syncLoggedOutState() {
+  currentUser = null;
+  currentArchive = null;
+  latestAiContext = null;
+  chatHistory = [];
+  currentUserName.textContent = "请先登录";
+  activeUserChip.textContent = "未登录";
+  archiveStatusNote.textContent = "请先登录后读取八字档案。";
+  reminderPreviewNote.textContent = "登录后可同步读取个人中心的提醒配置。";
 }
 
 function handleCalendarToggle() {
@@ -307,7 +298,9 @@ async function loadLunarPicker() {
     const response = await fetch(`/api/v1/bazi/lunar-picker?year=${year}&month=${month}&day=${day}`);
     const data = await response.json();
 
-    if (!response.ok) return;
+    if (!response.ok) {
+      return;
+    }
 
     lunarMonthInput.innerHTML = data.result.months
       .map(
@@ -352,7 +345,6 @@ async function buildProfilePayload() {
 }
 
 function fillArchive(archive) {
-  displayNameInput.value = archive.displayName || "";
   calendarTypeInput.value = archive.profile.calendarType;
   genderInput.value = archive.profile.gender;
   birthPlaceInput.value = archive.profile.birthPlace;
@@ -381,15 +373,6 @@ function applyReminder(reminderSettings) {
   monthlyEnabledInput.checked = reminderSettings.monthlyEnabled;
   monthlyDayInput.value = String(reminderSettings.monthlyDay);
   reminderChannelInput.value = reminderSettings.channel;
-}
-
-function syncUserState() {
-  if (activeUserId) {
-    const display = currentArchive?.displayName || activeUserId;
-    activeUserChip.textContent = `当前用户：${display}`;
-  } else {
-    activeUserChip.textContent = "未登录";
-  }
 }
 
 function renderAdviceResult(result) {
@@ -593,9 +576,7 @@ function renderAdviceResult(result) {
           <div class="tag-list" style="margin-top:12px;">
             ${result.advice.accessorySuggestions.map((item) => `<span class="chip">${item}</span>`).join("")}
           </div>
-          <div class="info-note" style="margin-top:12px;">
-            优先把建议颜色落到上衣、内搭、手机壳、包饰、首饰等高频可见位置，形成稳定的日常提示感。
-          </div>
+          <div class="info-note" style="margin-top:12px;">优先把建议颜色落到上衣、内搭、手机壳、包饰、首饰等高频可见位置，形成稳定的日常提示感。</div>
         </article>
       </div>
     </section>

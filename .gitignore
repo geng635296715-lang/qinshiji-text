@@ -3,3 +3,14 @@ dist/
 .env
 npm-debug.log*
 data/
+.codex-runtime/
+tmp/
+out/
+exports/
+deliverables/
+reports/
+package/
+*-pkg/
+*.tgz
+__pycache__/
+*.pyc

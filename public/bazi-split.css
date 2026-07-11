@@ -1,0 +1,327 @@
+.bazi-split-body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 50% 18%, rgba(231, 183, 91, 0.08), transparent 24%),
+    linear-gradient(180deg, #050403 0%, #090705 100%);
+}
+
+.bazi-split-canvas {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 50% 18%, rgba(255, 214, 127, 0.07), transparent 20%),
+    linear-gradient(180deg, rgba(7, 6, 5, 0.32), rgba(5, 4, 3, 0.84));
+}
+
+.bazi-split-grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255, 255, 255, 0.12) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 76% 16%, rgba(231, 183, 91, 0.18) 0 1.2px, transparent 1.8px),
+    radial-gradient(circle at 70% 72%, rgba(255, 255, 255, 0.07) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 28% 78%, rgba(231, 183, 91, 0.14) 0 1px, transparent 1.4px);
+  opacity: 0.44;
+}
+
+.bazi-split-stage {
+  position: absolute;
+  inset: 100px 0 0;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.bazi-option {
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow: hidden;
+  transition: filter 260ms ease, transform 320ms ease;
+}
+
+.bazi-option-left {
+  clip-path: polygon(0 0, 61% 0, 51% 100%, 0 100%);
+}
+
+.bazi-option-right {
+  clip-path: polygon(59% 0, 100% 0, 100% 100%, 49% 100%);
+}
+
+.bazi-panel-bg,
+.bazi-panel-shade,
+.bazi-panel-rings {
+  position: absolute;
+  inset: 0;
+  transition: transform 420ms ease, filter 320ms ease, opacity 260ms ease;
+}
+
+.bazi-panel-bg {
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+
+.bazi-option-left .bazi-panel-bg {
+  background-image:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.24)),
+    url("/assets/bazi-split-left-direct.png");
+  background-position: left center;
+  background-size: 100% 100%;
+}
+
+.bazi-option-right .bazi-panel-bg {
+  background-image:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.3)),
+    url("/assets/bazi-split-right-direct.png");
+  background-position: right center;
+  background-size: 100% 100%;
+}
+
+.bazi-panel-shade {
+  background:
+    radial-gradient(circle at center, rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0.54) 76%),
+    linear-gradient(180deg, rgba(5, 5, 5, 0.08), rgba(5, 5, 5, 0.18));
+}
+
+.bazi-panel-rings {
+  opacity: 0.18;
+  background:
+    radial-gradient(circle at 50% 50%, transparent 0 20%, rgba(231, 183, 91, 0.2) 20.4% 20.7%, transparent 21% 32%, rgba(231, 183, 91, 0.14) 32.4% 32.6%, transparent 33%),
+    radial-gradient(circle at 50% 50%, transparent 0 42%, rgba(231, 183, 91, 0.12) 42.3% 42.5%, transparent 43%);
+  mix-blend-mode: screen;
+}
+
+.bazi-split-divider {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 430px;
+  height: 100%;
+  transform: translateX(-50%) rotate(-6.8deg);
+  transform-origin: center center;
+  z-index: 4;
+  pointer-events: none;
+  background: url("/assets/bazi-split-divider-direct.png") center center / contain no-repeat;
+  filter:
+    drop-shadow(0 0 10px rgba(231, 183, 91, 0.78))
+    drop-shadow(0 0 28px rgba(231, 183, 91, 0.38));
+}
+
+.bazi-panel-copy {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.bazi-calligraphy {
+  position: absolute;
+  display: block;
+  max-width: none;
+  mix-blend-mode: screen;
+  filter: drop-shadow(0 22px 34px rgba(0, 0, 0, 0.28));
+  transition: transform 420ms ease, opacity 260ms ease, filter 320ms ease;
+}
+
+.bazi-calligraphy-left {
+  left: 88px;
+  top: 44px;
+  width: 690px;
+}
+
+.bazi-calligraphy-right {
+  right: 122px;
+  bottom: 52px;
+  width: 560px;
+}
+
+.bazi-copy-block {
+  position: absolute;
+  left: 322px;
+  top: 348px;
+  width: 384px;
+  color: rgba(228, 221, 212, 0.92);
+  text-shadow: 0 6px 18px rgba(0, 0, 0, 0.38);
+}
+
+.bazi-copy-block-right {
+  left: auto;
+  right: 244px;
+  bottom: 364px;
+  top: auto;
+  width: 340px;
+  text-align: left;
+}
+
+.bazi-subhead {
+  margin: 0;
+  font-family: var(--serif-cn);
+  font-size: 44px;
+  color: rgba(220, 215, 208, 0.9);
+  letter-spacing: 0.1em;
+  line-height: 1.2;
+}
+
+.bazi-description {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.94;
+  color: rgba(186, 178, 168, 0.88);
+}
+
+.bazi-copy-block .bazi-description {
+  margin-top: 16px;
+}
+
+.bazi-subhead-right {
+  margin-top: 18px;
+  font-size: 40px;
+  color: rgba(220, 215, 208, 0.9);
+}
+
+.bazi-split-stage:has(.bazi-option-left:hover) .bazi-option-left .bazi-panel-bg,
+.bazi-split-stage:has(.bazi-option-left:focus-visible) .bazi-option-left .bazi-panel-bg {
+  transform: scale(1.055);
+  filter: brightness(1.05) saturate(1.06);
+}
+
+.bazi-split-stage:has(.bazi-option-left:hover) .bazi-option-left .bazi-calligraphy,
+.bazi-split-stage:has(.bazi-option-left:focus-visible) .bazi-option-left .bazi-calligraphy {
+  transform: scale(1.04);
+  filter: drop-shadow(0 22px 34px rgba(0, 0, 0, 0.24)) drop-shadow(0 0 16px rgba(255, 255, 255, 0.08));
+}
+
+.bazi-split-stage:has(.bazi-option-left:hover) .bazi-option-right,
+.bazi-split-stage:has(.bazi-option-left:focus-visible) .bazi-option-right {
+  filter: brightness(0.52) saturate(0.72);
+}
+
+.bazi-split-stage:has(.bazi-option-right:hover) .bazi-option-right .bazi-panel-bg,
+.bazi-split-stage:has(.bazi-option-right:focus-visible) .bazi-option-right .bazi-panel-bg {
+  transform: scale(1.055);
+  filter: brightness(1.05) saturate(1.06);
+}
+
+.bazi-split-stage:has(.bazi-option-right:hover) .bazi-option-right .bazi-calligraphy,
+.bazi-split-stage:has(.bazi-option-right:focus-visible) .bazi-option-right .bazi-calligraphy {
+  transform: scale(1.04);
+  filter: drop-shadow(0 22px 34px rgba(0, 0, 0, 0.24)) drop-shadow(0 0 16px rgba(255, 255, 255, 0.08));
+}
+
+.bazi-split-stage:has(.bazi-option-right:hover) .bazi-option-left,
+.bazi-split-stage:has(.bazi-option-right:focus-visible) .bazi-option-left {
+  filter: brightness(0.5) saturate(0.72);
+}
+
+.bazi-option:focus-visible {
+  outline: none;
+}
+
+.bazi-option:focus-visible .bazi-panel-shade {
+  box-shadow: inset 0 0 0 2px rgba(245, 215, 133, 0.7);
+}
+
+@media (max-width: 1180px) {
+  .bazi-split-stage {
+    inset: 92px 0 0;
+  }
+
+  .bazi-calligraphy-left {
+    left: 32px;
+    width: 620px;
+  }
+
+  .bazi-calligraphy-right {
+    right: 132px;
+    width: 470px;
+  }
+
+  .bazi-copy-block {
+    left: 250px;
+    top: 308px;
+    width: 340px;
+  }
+
+  .bazi-copy-block-right {
+    right: 180px;
+    bottom: 336px;
+    width: 310px;
+  }
+}
+
+@media (max-width: 900px) {
+  .site-canvas.bazi-split-canvas {
+    min-height: auto;
+  }
+
+  .bazi-split-stage {
+    position: relative;
+    inset: auto;
+    display: grid;
+    min-height: calc(100vh - 110px);
+    padding-top: 96px;
+  }
+
+  .bazi-option,
+  .bazi-option-left,
+  .bazi-option-right {
+    position: relative;
+    inset: auto;
+    clip-path: none;
+    min-height: 430px;
+    filter: none !important;
+  }
+
+  .bazi-split-divider {
+    left: 50%;
+    top: 50%;
+    width: 82%;
+    height: 120px;
+    transform: translate(-50%, -50%) rotate(-6deg);
+    background-size: contain;
+  }
+
+  .bazi-calligraphy-left,
+  .bazi-calligraphy-right {
+    left: 50%;
+    right: auto;
+    width: min(76vw, 520px);
+    transform: translateX(-50%);
+  }
+
+  .bazi-calligraphy-left {
+    top: 28px;
+  }
+
+  .bazi-calligraphy-right {
+    bottom: 36px;
+  }
+
+  .bazi-copy-block,
+  .bazi-copy-block-right {
+    left: 50%;
+    right: auto;
+    top: auto;
+    bottom: 52px;
+    width: min(80vw, 440px);
+    transform: translateX(-50%);
+    text-align: center;
+  }
+
+  .bazi-copy-block-right {
+    bottom: auto;
+    top: 42px;
+  }
+
+  .bazi-subhead {
+    font-size: 34px;
+  }
+
+  .bazi-description {
+    font-size: 15px;
+    line-height: 1.82;
+  }
+
+  .bazi-copy-block .bazi-description {
+    margin-top: 14px;
+  }
+}

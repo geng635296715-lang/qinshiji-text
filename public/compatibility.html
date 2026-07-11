@@ -3,33 +3,39 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>青筮记 · VIP 八字合盘</title>
+    <title>青筮记 · 八字合盘分析</title>
     <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/dark-theme.css" />
   </head>
-  <body>
+  <body class="qs-dark-page">
     <div class="app-shell" data-page="compatibility">
       <header class="app-header">
         <div class="app-title-group">
-          <p class="section-kicker">青筮记 · VIP 合盘</p>
+          <p class="section-kicker">青筮记 · 合盘深度分析</p>
           <h1>八字合盘分析页</h1>
-          <p class="muted">
-            支持情侣、同性情侣、亲人、同事、老板员工、合伙人等关系类型，图文对照和 AI 深聊在同一页面完成。
-          </p>
+          <p class="muted">支持情侣、同性情侣、亲人、同事、老板员工、合伙人等关系类型，图表对照与 AI 深聊在同一页面完成。</p>
         </div>
 
         <div class="mini-list">
-          <a class="chip" href="/index.html">返回入口</a>
-          <a class="chip" href="/bazi.html">切换到八字页</a>
+          <span class="chip">VIP 合盘限时免费</span>
+          <a class="chip" href="/home.html">返回首页</a>
+          <a class="chip" href="/bazi-chart.html">切换到八字页</a>
+          <a class="chip" href="/membership.html">会员入口</a>
           <a class="chip" href="/qingzhi.html">青筮建议</a>
         </div>
       </header>
+
+      <div class="promo-banner">
+        <strong>限时开放：</strong>
+        当前全部合盘内容按限时免费策略开放体验，后续会员入口与支付能力恢复时将沿用现有标识与结构。
+      </div>
 
       <div class="app-grid">
         <section class="left-column">
           <div class="form-card">
             <div class="section-title">
               <div>
-                <p class="section-kicker">VIP 合盘输入</p>
+                <p class="section-kicker">合盘输入</p>
                 <h2>双方信息</h2>
               </div>
               <span class="chip">图表 + 图文讲解</span>
@@ -116,9 +122,7 @@
           </div>
 
           <div id="compatibility-result" class="panel-card">
-            <div class="empty-state">
-              提交双方信息后，这里会显示合盘仪表板、旺衰对照、五行图表、关系重点、图文讲解与 VIP 分析。
-            </div>
+            <div class="empty-state">提交双方信息后，这里会显示合盘仪表盘、旺衰对照、五行图表、关系重点、图文讲解与深度分析。</div>
           </div>
         </section>
 
@@ -133,18 +137,13 @@
             </div>
 
             <div id="compatibility-ai-chat" class="chat-list">
-              <div class="chat-bubble assistant">
-                生成合盘结果后，可以继续问关系稳定性、共事分工、冲突点、长期经营、同性情侣专项和阶段节奏等问题。
-              </div>
+              <div class="chat-bubble assistant">生成合盘结果后，可以继续问关系稳定性、共事分工、冲突点、长期经营、同性情侣专项与阶段节奏等问题。</div>
             </div>
 
             <div class="suggestion-strip" id="compatibility-ai-suggestions"></div>
 
             <div class="ai-input">
-              <textarea
-                id="compatibility-ai-question"
-                placeholder="例如：如果我们是同性情侣，这段关系在现实承接和长期规划上最要注意什么？"
-              ></textarea>
+              <textarea id="compatibility-ai-question" placeholder="例如：如果我们是同性情侣，这段关系在现实承接和长期规划上最要注意什么？"></textarea>
               <button class="primary-btn" id="compatibility-ai-send" type="button">发送给 AI 命理师</button>
             </div>
           </div>
@@ -152,6 +151,7 @@
       </div>
     </div>
 
+    <script src="/account-menu.js" type="module"></script>
     <script src="/compatibility.js" type="module"></script>
   </body>
 </html>

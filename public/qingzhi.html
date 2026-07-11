@@ -5,22 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>青筮记 · 青筮建议</title>
     <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/dark-theme.css" />
   </head>
-  <body>
+  <body class="qs-dark-page">
     <div class="app-shell" data-page="qingzhi">
       <header class="app-header">
         <div class="app-title-group">
           <p class="section-kicker">青筮记 · 个人中心</p>
           <h1>青筮建议</h1>
-          <p class="muted">
-            结合八字、月令、黄道吉日与当下节奏，生成 7 天建议、方向场景建议、穿戴配色建议，并支持右侧 AI 继续深问。
-          </p>
+          <p class="muted">结合八字、月令、黄道吉日与当前节气，生成 7 天建议、方向场景建议、穿戴配色建议，并支持右侧 AI 深问。</p>
         </div>
 
         <div class="mini-list">
-          <a class="chip" href="/index.html">返回入口</a>
-          <a class="chip" href="/bazi.html">八字页</a>
-          <a class="chip" href="/compatibility.html">合盘页</a>
+          <a class="chip" href="/home.html">返回首页</a>
+          <a class="chip" href="/profile.html">个人中心</a>
+          <a class="chip" href="/bazi-chart.html">八字页面</a>
+          <a class="chip" href="/compatibility.html">合盘页面</a>
         </div>
       </header>
 
@@ -29,30 +29,21 @@
           <div class="form-card">
             <div class="section-title">
               <div>
-                <p class="section-kicker">中心切换</p>
-                <h2>登录与档案</h2>
+                <p class="section-kicker">中心联动</p>
+                <h2>当前登录用户</h2>
               </div>
               <span class="chip" id="active-user-chip">未登录</span>
             </div>
 
             <div class="center-grid">
-              <form id="center-login-form" class="result-card">
-                <p class="card-label">登录用户</p>
-                <div class="form-grid">
-                  <div class="field">
-                    <label for="center-user-id">用户标识</label>
-                    <input id="center-user-id" type="text" placeholder="例如：geng635296715-lang" />
-                  </div>
-                  <div class="field">
-                    <label for="center-display-name">显示名称</label>
-                    <input id="center-display-name" type="text" placeholder="例如：青筮记体验用户" />
-                  </div>
-                </div>
+              <div class="result-card">
+                <p class="card-label">账号状态</p>
+                <div class="display-value" id="current-user-name">请先登录</div>
                 <div class="button-row">
-                  <button class="primary-btn" type="submit">登录并读取档案</button>
-                  <button class="ghost-btn" id="center-logout" type="button">退出当前用户</button>
+                  <a class="primary-btn" href="/auth.html">前往登录 / 注册</a>
+                  <button class="ghost-btn" id="reload-center" type="button">重新读取档案</button>
                 </div>
-              </form>
+              </div>
 
               <div class="result-card">
                 <p class="card-label">建议生成</p>
@@ -72,9 +63,7 @@
                 <div class="button-row">
                   <button class="primary-btn" id="generate-from-archive" type="button">按当前档案生成</button>
                 </div>
-                <div class="info-note" id="archive-status-note">
-                  登录后如果已存在八字档案，系统会自动读取并生成今日建议。
-                </div>
+                <div class="info-note" id="archive-status-note">登录后如果已保存八字档案，系统会自动读取并生成青筮建议。</div>
               </div>
             </div>
           </div>
@@ -85,7 +74,7 @@
                 <p class="section-kicker">八字档案</p>
                 <h2>个人档案保存</h2>
               </div>
-              <span class="chip">自动联动青筮建议</span>
+              <span class="chip">直接写入统一用户数据库</span>
             </div>
 
             <form id="qingzhi-profile-form">
@@ -157,7 +146,7 @@
                 <p class="section-kicker">提醒设置</p>
                 <h2>每日推送 / 每月提醒</h2>
               </div>
-              <span class="chip">后端配置已预留</span>
+              <span class="chip">与个人中心共享配置</span>
             </div>
 
             <form id="qingzhi-reminder-form">
@@ -194,7 +183,7 @@
                       <option value="sms">短信预留</option>
                     </select>
                   </div>
-                  <div class="info-note" id="reminder-preview-note">提醒配置保存后，后续接推送服务时可直接复用。</div>
+                  <div class="info-note" id="reminder-preview-note">提醒配置保存后，后续接入推送服务时可直接复用。</div>
                 </div>
               </div>
 
@@ -205,9 +194,7 @@
           </div>
 
           <div id="qingzhi-result" class="panel-card">
-            <div class="empty-state">
-              登录并保存八字档案后，这里会自动生成 7 天日历、吉日分类、月令走势、方向场景建议、穿戴建议和专项提醒。
-            </div>
+            <div class="empty-state">登录并保存八字档案后，这里会自动生成 7 天日历、吉日分类、月令走势、方向场景建议、穿戴建议和专项提醒。</div>
           </div>
         </section>
 
@@ -222,18 +209,13 @@
             </div>
 
             <div id="qingzhi-ai-chat" class="chat-list">
-              <div class="chat-bubble assistant">
-                生成建议后，可以继续追问哪天适合签约、见人、谈感情、做决断，或者当天穿什么更顺势。
-              </div>
+              <div class="chat-bubble assistant">生成建议后，可以继续追问哪天适合签约、见人、谈感情、做决断，或者当天穿什么更顺势。</div>
             </div>
 
             <div class="suggestion-strip" id="qingzhi-ai-suggestions"></div>
 
             <div class="ai-input">
-              <textarea
-                id="qingzhi-ai-question"
-                placeholder="例如：未来 7 天里，哪一天最适合推进事业合作？为什么？"
-              ></textarea>
+              <textarea id="qingzhi-ai-question" placeholder="例如：未来 7 天里，哪一天最适合推进事业合作？为什么？"></textarea>
               <button class="primary-btn" id="qingzhi-ai-send" type="button">发送给 AI 命理师</button>
             </div>
           </div>
@@ -241,6 +223,7 @@
       </div>
     </div>
 
+    <script src="/account-menu.js" type="module"></script>
     <script src="/qingzhi.js" type="module"></script>
   </body>
 </html>

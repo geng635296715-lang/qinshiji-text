@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>青筮记 · 占卜分流</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Noto+Serif+SC:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/home.css" />
+    <link rel="stylesheet" href="/divination-split.css" />
+  </head>
+  <body class="divination-split-body">
+    <div class="site-canvas divination-split-canvas">
+      <div class="divination-split-grain" aria-hidden="true"></div>
+
+      <a class="brand-lockup layer" href="/home.html" aria-label="青筮记首页">
+        <img class="brand-app-logo" src="./assets/applogo.png" alt="" />
+        <img class="brand-word-logo" src="./assets/logo-horizontal.png" alt="青筮记" />
+      </a>
+
+      <header class="site-header layer">
+        <a class="nav-link" href="/home.html">首页</a>
+        <a class="nav-link active" href="/divination.html">占卜</a>
+        <a class="nav-link" href="/bazi.html">八字</a>
+        <a class="nav-link" href="/huangdao.html">青筮黄道</a>
+        <a class="nav-link" href="/courses.html">课程</a>
+        <a class="nav-link" href="/profile.html">记录</a>
+        <a class="nav-link" href="/about.html">关于</a>
+      </header>
+
+      <div class="login-button layer home-login-entry rebuilt-home-account" data-account-entry></div>
+
+      <main class="divination-split-stage">
+        <span class="split-divider" aria-hidden="true"></span>
+
+        <a class="split-option split-left" href="/liuyao.html" aria-label="进入六爻占卜页">
+          <div class="split-panel-bg" aria-hidden="true"></div>
+          <div class="split-panel-shade" aria-hidden="true"></div>
+          <div class="split-panel-rings" aria-hidden="true"></div>
+          <div class="split-panel-copy split-panel-copy-left">
+            <img class="split-calligraphy split-calligraphy-left" src="/assets/divination-liuyao-calligraphy.png" alt="" />
+            <div class="split-copy-block">
+              <p class="split-kicker">金钱课</p>
+              <span class="split-rule"></span>
+              <p class="split-description">以金钱为媒，观阴阳动静，<br />断吉凶进退，适用于问事、<br />择时与趋避。</p>
+            </div>
+          </div>
+        </a>
+
+        <a class="split-option split-right" href="/meihua.html" aria-label="进入梅花占卜页">
+          <div class="split-panel-bg" aria-hidden="true"></div>
+          <div class="split-panel-shade" aria-hidden="true"></div>
+          <div class="split-panel-rings" aria-hidden="true"></div>
+          <div class="split-panel-copy split-panel-copy-right">
+            <div class="split-copy-block split-copy-block-right">
+              <p class="split-intro">取象于梅，观数于心，<br />以象数推演变化，<br />灵动而直指机缘。</p>
+              <span class="split-rule"></span>
+              <p class="split-kicker split-kicker-right">易数</p>
+            </div>
+            <img class="split-calligraphy split-calligraphy-right" src="/assets/divination-meihua-calligraphy.png" alt="" />
+          </div>
+        </a>
+      </main>
+    </div>
+
+    <script type="module" src="/account-menu.js"></script>
+  </body>
+</html>

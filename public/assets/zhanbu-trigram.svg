@@ -1,0 +1,16 @@
+<svg width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="zhanbuGold" x1="18" y1="18" x2="78" y2="78" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F4D28B"/>
+      <stop offset="1" stop-color="#C79133"/>
+    </linearGradient>
+  </defs>
+  <circle cx="48" cy="48" r="37" stroke="url(#zhanbuGold)" stroke-width="2"/>
+  <path d="M28 26H68" stroke="url(#zhanbuGold)" stroke-width="4" stroke-linecap="round"/>
+  <path d="M28 38H44" stroke="url(#zhanbuGold)" stroke-width="4" stroke-linecap="round"/>
+  <path d="M52 38H68" stroke="url(#zhanbuGold)" stroke-width="4" stroke-linecap="round"/>
+  <path d="M28 50H68" stroke="url(#zhanbuGold)" stroke-width="4" stroke-linecap="round"/>
+  <path d="M28 62H44" stroke="url(#zhanbuGold)" stroke-width="4" stroke-linecap="round"/>
+  <path d="M52 62H68" stroke="url(#zhanbuGold)" stroke-width="4" stroke-linecap="round"/>
+  <path d="M33 72H63" stroke="url(#zhanbuGold)" stroke-width="2" stroke-linecap="round" stroke-opacity="0.86"/>
+</svg>

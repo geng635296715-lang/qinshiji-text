@@ -1,5 +1,6 @@
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
+import { getRequestUser } from "../../shared/auth/request.js";
 import { buildQingzhiAdviceAiView, buildQingzhiAdvicePageView } from "./presenter.js";
 import {
   buildReminderPreview,
@@ -30,13 +31,11 @@ const adviceSchema: z.ZodType<QingzhiAdviceInput> = z.object({
 });
 
 const profileSchema = z.object({
-  userId: z.string().min(1),
   displayName: z.string().min(1).optional(),
   profile: profileInputSchema
 });
 
 const reminderSchema = z.object({
-  userId: z.string().min(1),
   reminderSettings: z.object({
     dailyEnabled: z.boolean(),
     dailyTime: z.string().regex(/^\d{2}:\d{2}$/),
@@ -47,26 +46,44 @@ const reminderSchema = z.object({
 });
 
 const archiveGenerateSchema = z.object({
-  userId: z.string().min(1),
   scope: z.enum(["daily", "monthly"]),
   date: z.string()
 });
 
 export async function registerQingzhiAdviceRoutes(app: FastifyInstance) {
-  app.get("/api/v1/qingzhi-advice/center/:userId", async (request, reply) => {
-    const params = z.object({ userId: z.string().min(1) }).safeParse(request.params);
+  app.get("/api/v1/qingzhi-advice/center", async (request, reply) => {
+    const user = getRequestUser(request);
 
-    if (!params.success) {
-      return reply.status(400).send({
-        message: "Invalid user id",
-        issues: params.error.issues
-      });
+    if (!user) {
+      return reply.status(401).send({ message: "Unauthorized" });
     }
 
-    const record = await getQingzhiCenterRecord(params.data.userId);
+    const record = await getQingzhiCenterRecord(user.id);
 
     return {
-      userId: params.data.userId,
+      user,
+      hasProfile: Boolean(record),
+      archive: record,
+      reminderPreview: buildReminderPreview(record)
+    };
+  });
+
+  app.get("/api/v1/qingzhi-advice/center/:userId", async (request, reply) => {
+    const user = getRequestUser(request);
+    const params = z.object({ userId: z.string().min(1) }).safeParse(request.params);
+
+    if (!user) {
+      return reply.status(401).send({ message: "Unauthorized" });
+    }
+
+    if (!params.success || params.data.userId !== user.id) {
+      return reply.status(403).send({ message: "Forbidden" });
+    }
+
+    const record = await getQingzhiCenterRecord(user.id);
+
+    return {
+      user,
       hasProfile: Boolean(record),
       archive: record,
       reminderPreview: buildReminderPreview(record)
@@ -74,6 +91,12 @@ export async function registerQingzhiAdviceRoutes(app: FastifyInstance) {
   });
 
   app.post("/api/v1/qingzhi-advice/center/save-profile", async (request, reply) => {
+    const user = getRequestUser(request);
+
+    if (!user) {
+      return reply.status(401).send({ message: "Unauthorized" });
+    }
+
     const parsed = profileSchema.safeParse(request.body);
 
     if (!parsed.success) {
@@ -83,7 +106,12 @@ export async function registerQingzhiAdviceRoutes(app: FastifyInstance) {
       });
     }
 
-    const record = await saveQingzhiCenterProfile(parsed.data);
+    const record = await saveQingzhiCenterProfile({
+      userId: user.id,
+      displayName: parsed.data.displayName,
+      profile: parsed.data.profile
+    });
+
     return {
       message: "Profile saved",
       archive: record,
@@ -92,6 +120,12 @@ export async function registerQingzhiAdviceRoutes(app: FastifyInstance) {
   });
 
   app.post("/api/v1/qingzhi-advice/center/save-reminder", async (request, reply) => {
+    const user = getRequestUser(request);
+
+    if (!user) {
+      return reply.status(401).send({ message: "Unauthorized" });
+    }
+
     const parsed = reminderSchema.safeParse(request.body);
 
     if (!parsed.success) {
@@ -101,21 +135,31 @@ export async function registerQingzhiAdviceRoutes(app: FastifyInstance) {
       });
     }
 
-    try {
-      const record = await saveQingzhiReminderSettings(parsed.data);
-      return {
-        message: "Reminder settings saved",
-        archive: record,
-        reminderPreview: buildReminderPreview(record)
-      };
-    } catch (error) {
+    const record = await saveQingzhiReminderSettings({
+      userId: user.id,
+      reminderSettings: parsed.data.reminderSettings
+    });
+
+    if (!record) {
       return reply.status(404).send({
-        message: error instanceof Error ? error.message : "Failed to save reminder settings"
+        message: "User archive not found"
       });
     }
+
+    return {
+      message: "Reminder settings saved",
+      archive: record,
+      reminderPreview: buildReminderPreview(record)
+    };
   });
 
   app.post("/api/v1/qingzhi-advice/generate-from-profile", async (request, reply) => {
+    const user = getRequestUser(request);
+
+    if (!user) {
+      return reply.status(401).send({ message: "Unauthorized" });
+    }
+
     const parsed = archiveGenerateSchema.safeParse(request.body);
 
     if (!parsed.success) {
@@ -125,7 +169,7 @@ export async function registerQingzhiAdviceRoutes(app: FastifyInstance) {
       });
     }
 
-    const record = await getQingzhiCenterRecord(parsed.data.userId);
+    const record = await getQingzhiCenterRecord(user.id);
 
     if (!record) {
       return reply.status(404).send({
@@ -134,7 +178,7 @@ export async function registerQingzhiAdviceRoutes(app: FastifyInstance) {
     }
 
     const input: QingzhiAdviceInput = {
-      userId: parsed.data.userId,
+      userId: user.id,
       scope: parsed.data.scope,
       date: parsed.data.date,
       profile: record.profile
@@ -144,9 +188,10 @@ export async function registerQingzhiAdviceRoutes(app: FastifyInstance) {
       const result = generateQingzhiAdvice(input);
       const aiContext = buildQingzhiAdviceAiContext(result);
       const updatedRecord = await markQingzhiAdviceGenerated({
-        userId: parsed.data.userId,
+        userId: user.id,
         scope: parsed.data.scope,
-        date: parsed.data.date
+        date: parsed.data.date,
+        result
       });
 
       return {
